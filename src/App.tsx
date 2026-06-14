@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 
 import Home from "./pages/Home";
 import CalendarPage from "./pages/Calendar";
-import ComplimentsPage from "./pages/Compliments";
+import PickupLinesPage from "./pages/PickupLines";
 import RoastsPage from "./pages/Roasts";
 import SettingsPage from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -33,7 +33,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/calendar" element={<CalendarPage />} />
-        <Route path="/compliments" element={<ComplimentsPage />} />
+        <Route path="/pickup-lines" element={<PickupLinesPage />} />
         <Route path="/roasts" element={<RoastsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<NotFound />} />

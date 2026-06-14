@@ -1,19 +1,16 @@
 export interface DailyMessage {
-  id: string;
+  day: number;
   title: string;
   message: string;
-  date: string;
-  unlocked: boolean;
 }
 
-export interface Compliment {
-  id: string;
-  category: string;
+export interface PickupLine {
+  id: number;
   text: string;
 }
 
 export interface Roast {
-  id: string;
+  id: number;
   text: string;
 }
 

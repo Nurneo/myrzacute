@@ -21,11 +21,11 @@ const features = [
     path: "/calendar"
   },
   {
-    title: "Compliments",
+    title: "Pick-Up Lines",
     description: "Reasons why you're amazing",
     icon: Heart,
     color: "bg-accent/10 text-accent",
-    path: "/compliments"
+    path: "/pickup-lines"
   },
   {
     title: "Roast Mode",
