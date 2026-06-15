@@ -8,7 +8,7 @@ export const dailyMessages: DailyMessage[] = [
   { date: "2024-06-05", title: "June 5th", message: "Your message here..." },
   { date: "2024-06-06", title: "June 6th", message: "Your message here..." },
   { date: "2024-06-07", title: "June 7th", message: "Your message here..." },
-  { date: "2024-06-08", title: "June 8th", message: "Your message here..." },
+  { date: "2024-06-08", title: "June 8th", message: "Test 1" },
   { date: "2024-06-09", title: "June 9th", message: "Your message here..." },
   { date: "2024-06-10", title: "June 10th", message: "Your message here..." },
   { date: "2024-06-11", title: "June 11th", message: "Your message here..." },
