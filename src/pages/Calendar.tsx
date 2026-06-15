@@ -25,7 +25,7 @@ const CalendarPage = () => {
       />
       
       <div className="space-y-6">
-        <Card className="border-2 dark:border-[3px] border-border shadow-sm overflow-hidden bg-card rounded-3xl">
+        <Card className="border-[3px] border-border shadow-sm overflow-hidden bg-card rounded-3xl">
           <CardContent className="p-4 flex justify-center">
             <Calendar
               mode="single"
@@ -44,13 +44,13 @@ const CalendarPage = () => {
         </Card>
 
         {date && (
-          <Card className={`border-2 dark:border-[3px] border-border shadow-sm rounded-3xl overflow-hidden relative transition-all duration-500 ${isLocked ? 'bg-muted' : 'bg-primary/5'}`}>
+          <Card className={`border-[3px] border-border shadow-sm rounded-3xl overflow-hidden relative transition-all duration-500 ${isLocked ? 'bg-muted' : 'bg-primary/5'}`}>
             <div className="absolute top-0 right-0 p-4 opacity-10">
               {isLocked ? <Lock size={80} className="text-muted-foreground" /> : <Heart size={80} fill="currentColor" className="text-primary" />}
             </div>
             
             <CardContent className="p-8 text-center relative z-10">
-              <div className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl shadow-sm mb-4 transition-colors duration-500 border-2 dark:border-[3px] border-border ${isLocked ? 'bg-white text-muted-foreground' : 'bg-white text-primary'}`}>
+              <div className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl shadow-sm mb-4 transition-colors duration-500 border-[3px] border-border ${isLocked ? 'bg-white text-muted-foreground' : 'bg-white text-primary'}`}>
                 {isLocked ? <Lock size={24} /> : <CalendarIcon size={24} />}
               </div>
               
@@ -61,7 +61,7 @@ const CalendarPage = () => {
                 {format(date, 'd MMMM yyyy', { locale: ru })}
               </h3>
               
-              <div className={`mt-6 pt-6 border-t-2 dark:border-t-[3px] transition-colors duration-500 ${isLocked ? 'border-muted-foreground/10' : 'border-primary/10 dark:border-border'}`}>
+              <div className={`mt-6 pt-6 border-t-[3px] border-border transition-colors duration-500`}>
                 {isLocked ? (
                   <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2">
                     <h4 className="font-bold text-lg text-muted-foreground">Закрыто</h4>
@@ -72,7 +72,7 @@ const CalendarPage = () => {
                 ) : dailyContent ? (
                   <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2">
                     <h4 className="font-bold text-xl text-primary">{dailyContent.title}</h4>
-                    <div className="bg-white/50 backdrop-blur-sm p-4 rounded-2xl border-2 dark:border-[3px] border-primary/5 dark:border-border">
+                    <div className="bg-white/50 backdrop-blur-sm p-4 rounded-2xl border-[3px] border-border">
                       <p className="text-base text-foreground font-medium leading-relaxed">
                         "{dailyContent.message}"
                       </p>

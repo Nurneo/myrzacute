@@ -55,7 +55,7 @@ const Home = () => {
         <div className="absolute -top-4 -left-2 opacity-10 text-primary">
           <Quote size={48} fill="currentColor" />
         </div>
-        <div className="bg-primary/5 rounded-3xl p-8 border-2 dark:border-[3px] border-primary/10 dark:border-border">
+        <div className="bg-primary/5 rounded-3xl p-8 border-[3px] border-border">
           <p className="text-xs font-bold uppercase tracking-widest text-primary/60 mb-3">Сообщение дня</p>
           <p className="text-xl font-medium text-foreground leading-relaxed italic">
             "{messageOfTheDay}"
@@ -68,7 +68,7 @@ const Home = () => {
       <div className="grid grid-cols-1 gap-4">
         {features.map((feature) => (
           <Link key={feature.title} to={feature.path}>
-            <Card className="overflow-hidden border-2 dark:border-[3px] border-border shadow-sm hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]">
+            <Card className="overflow-hidden border-[3px] border-border shadow-sm hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]">
               <CardContent className="p-6 flex items-center gap-4">
                 <div className={`p-3 rounded-2xl ${feature.color} group-hover:scale-110 transition-transform`}>
                   <feature.icon size={24} />

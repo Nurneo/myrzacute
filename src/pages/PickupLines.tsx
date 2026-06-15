@@ -25,7 +25,7 @@ const PickupLinesPage = () => {
         <div className="flex justify-center py-4">
           <Button 
             onClick={generateLine}
-            className="rounded-full px-8 py-6 h-auto text-lg font-bold gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95 border-2 dark:border-[3px] border-transparent dark:border-border"
+            className="rounded-full px-8 py-6 h-auto text-lg font-bold gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95 border-[3px] border-border"
           >
             <Heart size={20} fill="currentColor" />
             Получить подкат
@@ -33,7 +33,7 @@ const PickupLinesPage = () => {
         </div>
 
         {currentLine ? (
-          <Card className="border-2 dark:border-[3px] border-border shadow-xl bg-card rounded-3xl overflow-hidden animate-in fade-in zoom-in duration-300">
+          <Card className="border-[3px] border-border shadow-xl bg-card rounded-3xl overflow-hidden animate-in fade-in zoom-in duration-300">
             <CardContent className="p-10 text-center relative">
               <div className="absolute top-4 left-4 opacity-10">
                 <Sparkles size={40} className="text-primary" />

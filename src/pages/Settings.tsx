@@ -24,7 +24,7 @@ const SettingsPage = () => {
             <button
               onClick={() => setTheme('light')}
               className={cn(
-                "flex flex-col items-center justify-center p-6 rounded-3xl border-2 dark:border-[3px] transition-all gap-3",
+                "flex flex-col items-center justify-center p-6 rounded-3xl border-[3px] transition-all gap-3",
                 theme === 'light' 
                   ? "border-primary bg-primary/5 text-primary" 
                   : "border-border bg-card text-muted-foreground hover:border-muted-foreground/30"
@@ -36,9 +36,9 @@ const SettingsPage = () => {
             <button
               onClick={() => setTheme('dark')}
               className={cn(
-                "flex flex-col items-center justify-center p-6 rounded-3xl border-2 dark:border-[3px] transition-all gap-3",
+                "flex flex-col items-center justify-center p-6 rounded-3xl border-[3px] transition-all gap-3",
                 theme === 'dark' 
-                  ? "border-primary dark:border-border bg-primary/5 text-primary dark:text-foreground" 
+                  ? "border-primary bg-primary/5 text-primary" 
                   : "border-border bg-card text-muted-foreground hover:border-muted-foreground/30"
               )}
             >
@@ -50,15 +50,15 @@ const SettingsPage = () => {
 
         <section>
           <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4 px-1">Предпочтения</h3>
-          <Card className="border-2 dark:border-[3px] border-border shadow-sm bg-card rounded-3xl overflow-hidden">
+          <Card className="border-[3px] border-border shadow-sm bg-card rounded-3xl overflow-hidden">
             <CardContent className="p-0">
-              <div className="divide-y-2 dark:divide-y-[3px] divide-border">
+              <div className="divide-y-[3px] divide-border">
                 <button 
                   onClick={() => setLanguage('en')}
                   className="w-full flex items-center justify-between p-5 hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border-2 dark:border-[3px] border-transparent dark:border-border">
+                    <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border-[3px] border-border">
                       <Globe size={20} />
                     </div>
                     <div className="text-left">
@@ -74,7 +74,7 @@ const SettingsPage = () => {
                   className="w-full flex items-center justify-between p-5 hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-accent/10 text-accent flex items-center justify-center border-2 dark:border-[3px] border-transparent dark:border-border">
+                    <div className="w-10 h-10 rounded-2xl bg-accent/10 text-accent flex items-center justify-center border-[3px] border-border">
                       <Globe size={20} />
                     </div>
                     <div className="text-left">
