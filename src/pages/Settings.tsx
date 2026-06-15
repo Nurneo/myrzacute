@@ -1,13 +1,11 @@
 import React from 'react';
 import PageContainer from '@/components/layout/PageContainer';
 import SectionHeader from '@/components/ui/SectionHeader';
-import { useTheme } from 'next-themes';
-import { Sun, Moon, Globe, Check } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
+import { Globe, Check } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 
 const SettingsPage = () => {
-  const { theme, setTheme } = useTheme();
   const [language, setLanguage] = React.useState<'en' | 'ru'>('ru');
 
   return (
@@ -20,32 +18,7 @@ const SettingsPage = () => {
       <div className="space-y-8">
         <section>
           <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4 px-1">Внешний вид</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setTheme('light')}
-              className={cn(
-                "flex flex-col items-center justify-center p-6 rounded-3xl border-[3px] transition-all gap-3",
-                theme === 'light' 
-                  ? "border-primary bg-primary/5 text-primary" 
-                  : "border-border bg-card text-muted-foreground hover:border-muted-foreground/30"
-              )}
-            >
-              <Sun size={24} />
-              <span className="font-bold text-sm">День</span>
-            </button>
-            <button
-              onClick={() => setTheme('dark')}
-              className={cn(
-                "flex flex-col items-center justify-center p-6 rounded-3xl border-[3px] transition-all gap-3",
-                theme === 'dark' 
-                  ? "border-primary bg-primary/5 text-primary" 
-                  : "border-border bg-card text-muted-foreground hover:border-muted-foreground/30"
-              )}
-            >
-              <Moon size={24} />
-              <span className="font-bold text-sm">Ночь</span>
-            </button>
-          </div>
+          <ThemeToggle />
         </section>
 
         <section>
