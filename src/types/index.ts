@@ -7,6 +7,14 @@ export interface DailyMessage {
 export type PickupLine = string;
 export type Roast = string;
 
+export interface Memory {
+  id: string;
+  date: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+}
+
 export interface UserSettings {
   theme: 'light' | 'dark';
   language: string;
