@@ -1,18 +1,11 @@
 export interface DailyMessage {
-  day: number;
+  date: string; // Format: YYYY-MM-DD
   title: string;
   message: string;
 }
 
-export interface PickupLine {
-  id: number;
-  text: string;
-}
-
-export interface Roast {
-  id: number;
-  text: string;
-}
+export type PickupLine = string;
+export type Roast = string;
 
 export interface UserSettings {
   theme: 'light' | 'dark';

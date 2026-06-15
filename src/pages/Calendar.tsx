@@ -5,9 +5,13 @@ import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, Heart } from 'lucide-react';
+import { dailyMessages } from '@/content/dailyMessages';
 
 const CalendarPage = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
+
+  const selectedDateString = date ? format(date, 'yyyy-MM-dd') : '';
+  const dailyContent = dailyMessages.find(m => m.date === selectedDateString);
 
   return (
     <PageContainer>
@@ -17,7 +21,6 @@ const CalendarPage = () => {
       />
       
       <div className="space-y-6">
-        {/* Calendar Card */}
         <Card className="border-none shadow-sm overflow-hidden bg-white rounded-3xl">
           <CardContent className="p-4 flex justify-center">
             <Calendar
@@ -33,7 +36,6 @@ const CalendarPage = () => {
           </CardContent>
         </Card>
 
-        {/* Selected Date Details */}
         {date && (
           <Card className="border-none shadow-sm bg-primary/5 rounded-3xl overflow-hidden relative">
             <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -49,14 +51,20 @@ const CalendarPage = () => {
               <h3 className="text-3xl font-black text-foreground tracking-tighter">
                 {format(date, 'MMMM do')}
               </h3>
-              <p className="text-muted-foreground font-medium mt-2">
-                {format(date, 'yyyy')}
-              </p>
               
               <div className="mt-6 pt-6 border-t border-primary/10">
-                <p className="text-sm text-muted-foreground italic">
-                  "Every moment spent with you is a favorite memory in the making."
-                </p>
+                {dailyContent ? (
+                  <div className="space-y-2">
+                    <h4 className="font-bold text-lg text-primary">{dailyContent.title}</h4>
+                    <p className="text-sm text-muted-foreground italic">
+                      "{dailyContent.message}"
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">
+                    "No special message for this day yet, but I'm still thinking of you."
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

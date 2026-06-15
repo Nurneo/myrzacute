@@ -1,9 +1,34 @@
 import { DailyMessage } from "@/types";
 
 export const dailyMessages: DailyMessage[] = [
-  // {
-  //   day: 1,
-  //   title: "",
-  //   message: ""
-  // }
+  { date: "2024-06-01", title: "June 1st", message: "Your message here..." },
+  { date: "2024-06-02", title: "June 2nd", message: "Your message here..." },
+  { date: "2024-06-03", title: "June 3rd", message: "Your message here..." },
+  { date: "2024-06-04", title: "June 4th", message: "Your message here..." },
+  { date: "2024-06-05", title: "June 5th", message: "Your message here..." },
+  { date: "2024-06-06", title: "June 6th", message: "Your message here..." },
+  { date: "2024-06-07", title: "June 7th", message: "Your message here..." },
+  { date: "2024-06-08", title: "June 8th", message: "Your message here..." },
+  { date: "2024-06-09", title: "June 9th", message: "Your message here..." },
+  { date: "2024-06-10", title: "June 10th", message: "Your message here..." },
+  { date: "2024-06-11", title: "June 11th", message: "Your message here..." },
+  { date: "2024-06-12", title: "June 12th", message: "Your message here..." },
+  { date: "2024-06-13", title: "June 13th", message: "Your message here..." },
+  { date: "2024-06-14", title: "June 14th", message: "Your message here..." },
+  { date: "2024-06-15", title: "June 15th", message: "Your message here..." },
+  { date: "2024-06-16", title: "June 16th", message: "Your message here..." },
+  { date: "2024-06-17", title: "June 17th", message: "Your message here..." },
+  { date: "2024-06-18", title: "June 18th", message: "Your message here..." },
+  { date: "2024-06-19", title: "June 19th", message: "Your message here..." },
+  { date: "2024-06-20", title: "June 20th", message: "Your message here..." },
+  { date: "2024-06-21", title: "June 21st", message: "Your message here..." },
+  { date: "2024-06-22", title: "June 22nd", message: "Your message here..." },
+  { date: "2024-06-23", title: "June 23rd", message: "Your message here..." },
+  { date: "2024-06-24", title: "June 24th", message: "Your message here..." },
+  { date: "2024-06-25", title: "June 25th", message: "Your message here..." },
+  { date: "2024-06-26", title: "June 26th", message: "Your message here..." },
+  { date: "2024-06-27", title: "June 27th", message: "Your message here..." },
+  { date: "2024-06-28", title: "June 28th", message: "Your message here..." },
+  { date: "2024-06-29", title: "June 29th", message: "Your message here..." },
+  { date: "2024-06-30", title: "June 30th", message: "Your message here..." },
 ];
