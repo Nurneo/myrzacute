@@ -1,8 +1,9 @@
 import { PickupLine } from "@/types";
 
 export const pickupLines: PickupLine[] = [
-  "Are your parents pirats? Then why are you such a treasure",
-  "Do you have a map? I just got lost in your eyes.",
-  "Is your name Google? Because you have everything I’m searching for.",
-  // Add more lines here easily...
+  "Твои родители случайно не пираты? Тогда откуда у них такое сокровище?",
+  "У тебя есть карта? Я просто потерялся в твоих глазах.",
+  "Твое имя случайно не Google? Потому что в тебе есть всё, что я ищу.",
+  "Ты веришь в любовь с первого взгляда или мне пройти мимо еще раз?",
+  "Твоя улыбка — это всё, что мне нужно для счастья.",
 ];

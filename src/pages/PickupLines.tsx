@@ -17,8 +17,8 @@ const PickupLinesPage = () => {
   return (
     <PageContainer>
       <SectionHeader 
-        title="Pick-Up Lines" 
-        subtitle="Just a few reminders of how great you are" 
+        title="Подкаты" 
+        subtitle="Просто напоминание о том, как ты прекрасна" 
       />
       
       <div className="space-y-8">
@@ -28,7 +28,7 @@ const PickupLinesPage = () => {
             className="rounded-full px-8 py-6 h-auto text-lg font-bold gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95"
           >
             <Heart size={20} fill="currentColor" />
-            Generate Line
+            Получить подкат
           </Button>
         </div>
 
@@ -49,7 +49,7 @@ const PickupLinesPage = () => {
         ) : (
           <div className="text-center py-12 opacity-40">
             <Heart size={48} className="mx-auto mb-4 text-muted-foreground" />
-            <p className="text-sm font-medium uppercase tracking-widest">Click the button for some love</p>
+            <p className="text-sm font-medium uppercase tracking-widest">Нажми на кнопку для порции любви</p>
           </div>
         )}
       </div>

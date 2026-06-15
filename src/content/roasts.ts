@@ -1,8 +1,9 @@
 import { Roast } from "@/types";
 
 export const roasts: Roast[] = [
-  "I’d agree with you but then we’d both be wrong.",
-  "You’re the reason the gene pool needs a lifeguard.",
-  "I’m not saying I hate you, but I would unplug your life support to charge my phone.",
-  // Add more roasts here easily...
+  "Я бы согласился с тобой, но тогда мы оба будем неправы.",
+  "Ты — причина, по которой на генофонде нужен спасатель.",
+  "Я не говорю, что ненавижу тебя, но я бы отключил твое жизнеобеспечение, чтобы зарядить телефон.",
+  "Твой мозг как интернет в деревне — вроде есть, но ничего не грузит.",
+  "Если бы тупость была искусством, ты был бы шедевром.",
 ];

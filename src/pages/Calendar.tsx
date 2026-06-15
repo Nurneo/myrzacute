@@ -4,16 +4,14 @@ import SectionHeader from '@/components/ui/SectionHeader';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, isAfter, startOfDay } from 'date-fns';
+import { ru } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Heart, Lock } from 'lucide-react';
 import { dailyMessages } from '@/content';
 
 const CalendarPage = () => {
-  // Default to June 1st, 2024 so the user sees their content immediately
   const [date, setDate] = useState<Date | undefined>(new Date(2024, 5, 1));
 
   const today = startOfDay(new Date());
-  // For testing purposes with 2024 dates, we'll treat them as "past" 
-  // unless the user is actually in 2024.
   const isLocked = date ? isAfter(startOfDay(date), today) : false;
   
   const selectedDateString = date ? format(date, 'yyyy-MM-dd') : '';
@@ -22,8 +20,8 @@ const CalendarPage = () => {
   return (
     <PageContainer>
       <SectionHeader 
-        title="Our Calendar" 
-        subtitle="Every day is a gift with you" 
+        title="Наш календарь" 
+        subtitle="Каждый день с тобой — подарок" 
       />
       
       <div className="space-y-6">
@@ -33,8 +31,8 @@ const CalendarPage = () => {
               mode="single"
               selected={date}
               onSelect={setDate}
-              // Ensure the calendar shows June 2024 by default
               defaultMonth={new Date(2024, 5)}
+              locale={ru}
               className="rounded-md border-none"
               classNames={{
                 day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
@@ -56,18 +54,18 @@ const CalendarPage = () => {
               </div>
               
               <p className={`text-xs font-black uppercase tracking-[0.2em] mb-1 transition-colors duration-500 ${isLocked ? 'text-muted-foreground' : 'text-primary'}`}>
-                {format(date, 'EEEE')}
+                {format(date, 'EEEE', { locale: ru })}
               </p>
               <h3 className="text-3xl font-black text-foreground tracking-tighter">
-                {format(date, 'MMMM do, yyyy')}
+                {format(date, 'd MMMM yyyy', { locale: ru })}
               </h3>
               
               <div className={`mt-6 pt-6 border-t transition-colors duration-500 ${isLocked ? 'border-muted-foreground/10' : 'border-primary/10'}`}>
                 {isLocked ? (
                   <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2">
-                    <h4 className="font-bold text-lg text-muted-foreground">Locked</h4>
+                    <h4 className="font-bold text-lg text-muted-foreground">Закрыто</h4>
                     <p className="text-sm text-muted-foreground italic">
-                      "Patience, beautiful. This surprise is waiting for the right moment."
+                      "Терпение, красавица. Этот сюрприз ждет своего момента."
                     </p>
                   </div>
                 ) : dailyContent ? (
@@ -82,7 +80,7 @@ const CalendarPage = () => {
                 ) : (
                   <div className="animate-in fade-in">
                     <p className="text-sm text-muted-foreground italic">
-                      "No special message for this day yet, but I'm still thinking of you."
+                      "На этот день пока нет сообщения, но я всё равно думаю о тебе."
                     </p>
                   </div>
                 )}

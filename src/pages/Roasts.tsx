@@ -18,16 +18,16 @@ const RoastsPage = () => {
   return (
     <PageContainer>
       <SectionHeader 
-        title="Roast Mode" 
-        subtitle="Don't take it personally, I love you" 
+        title="Режим прожарки" 
+        subtitle="Не принимай близко к сердцу, я люблю тебя" 
       />
       
       <div className="space-y-8">
         <Alert className="bg-orange-50 border-orange-200 text-orange-800 rounded-2xl">
           <AlertCircle className="h-4 w-4 text-orange-600" />
-          <AlertTitle className="font-bold">Warning</AlertTitle>
+          <AlertTitle className="font-bold">Внимание</AlertTitle>
           <AlertDescription className="text-xs opacity-80">
-            Proceed with caution. These roasts are handcrafted with 100% sass.
+            Действуй осторожно. Эти прожарки на 100% состоят из дерзости.
           </AlertDescription>
         </Alert>
 
@@ -38,7 +38,7 @@ const RoastsPage = () => {
             className="rounded-full px-8 py-6 h-auto text-lg font-bold gap-2 border-2 border-orange-500 text-orange-500 hover:bg-orange-50 transition-all active:scale-95"
           >
             <Flame size={20} />
-            Roast Me
+            Прожарь меня
           </Button>
         </div>
 
@@ -59,7 +59,7 @@ const RoastsPage = () => {
         ) : (
           <div className="text-center py-12 opacity-40">
             <Flame size={48} className="mx-auto mb-4 text-muted-foreground" />
-            <p className="text-sm font-medium uppercase tracking-widest">Ready to get burned?</p>
+            <p className="text-sm font-medium uppercase tracking-widest">Готова подгореть?</p>
           </div>
         )}
       </div>

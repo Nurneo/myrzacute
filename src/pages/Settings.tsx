@@ -8,19 +8,19 @@ import { cn } from '@/lib/utils';
 
 const SettingsPage = () => {
   const { theme, setTheme } = useTheme();
-  const [language, setLanguage] = React.useState<'en' | 'ru'>('en');
+  const [language, setLanguage] = React.useState<'en' | 'ru'>('ru');
 
   return (
     <PageContainer>
       <SectionHeader 
-        title="Settings" 
-        subtitle="Make it yours" 
+        title="Настройки" 
+        subtitle="Сделай приложение своим" 
       />
       
       <div className="space-y-8">
         {/* Appearance Section */}
         <section>
-          <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4 px-1">Appearance</h3>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4 px-1">Внешний вид</h3>
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => setTheme('light')}
@@ -32,7 +32,7 @@ const SettingsPage = () => {
               )}
             >
               <Sun size={24} />
-              <span className="font-bold text-sm">Day</span>
+              <span className="font-bold text-sm">День</span>
             </button>
             <button
               onClick={() => setTheme('dark')}
@@ -44,14 +44,14 @@ const SettingsPage = () => {
               )}
             >
               <Moon size={24} />
-              <span className="font-bold text-sm">Night</span>
+              <span className="font-bold text-sm">Ночь</span>
             </button>
           </div>
         </section>
 
         {/* Preferences Section */}
         <section>
-          <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4 px-1">Preferences</h3>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4 px-1">Предпочтения</h3>
           <Card className="border-none shadow-sm bg-card rounded-3xl overflow-hidden">
             <CardContent className="p-0">
               <div className="divide-y divide-border">
@@ -65,7 +65,7 @@ const SettingsPage = () => {
                     </div>
                     <div className="text-left">
                       <p className="font-bold">English</p>
-                      <p className="text-xs text-muted-foreground">Default language</p>
+                      <p className="text-xs text-muted-foreground">Язык по умолчанию</p>
                     </div>
                   </div>
                   {language === 'en' && <Check size={20} className="text-primary" />}
@@ -81,7 +81,7 @@ const SettingsPage = () => {
                     </div>
                     <div className="text-left">
                       <p className="font-bold">Русский</p>
-                      <p className="text-xs text-muted-foreground">Russian language</p>
+                      <p className="text-xs text-muted-foreground">Русский язык</p>
                     </div>
                   </div>
                   {language === 'ru' && <Check size={20} className="text-primary" />}
