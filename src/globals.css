@@ -34,6 +34,36 @@
 
     --radius: 1rem;
   }
+
+  .dark {
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 6%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 4%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 187 100% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 47% 12%;
+    --secondary-foreground: 187 100% 75%;
+
+    --muted: 222 47% 12%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 349 100% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 47% 12%;
+    --input: 222 47% 12%;
+    --ring: 187 100% 45%;
+  }
 }
 
 @layer base {
@@ -41,13 +71,13 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased transition-colors duration-300;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
   }
 }
 
 .nav-blur {
-  @apply bg-white/80 backdrop-blur-md border-t border-border;
+  @apply bg-background/80 backdrop-blur-md border-t border-border;
 }
 
 .safe-bottom {
