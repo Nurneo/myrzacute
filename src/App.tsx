@@ -13,7 +13,6 @@ import RoastsPage from "./pages/Roasts";
 import SettingsPage from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Loading from "./pages/Loading";
-import BottomNav from "./components/layout/BottomNav";
 
 const queryClient = new QueryClient();
 
@@ -38,7 +37,6 @@ const AppContent = () => {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <BottomNav />
     </div>
   );
 };
