@@ -23,7 +23,7 @@ const RoastsPage = () => {
       />
       
       <div className="space-y-8">
-        <Alert className="bg-orange-50 border-orange-200 text-orange-800 rounded-2xl">
+        <Alert className="bg-orange-50 dark:bg-orange-900/20 border-2 dark:border-[3px] border-orange-200 dark:border-border text-orange-800 dark:text-orange-200 rounded-2xl">
           <AlertCircle className="h-4 w-4 text-orange-600" />
           <AlertTitle className="font-bold">Внимание</AlertTitle>
           <AlertDescription className="text-xs opacity-80">
@@ -35,7 +35,7 @@ const RoastsPage = () => {
           <Button 
             variant="outline" 
             onClick={generateRoast}
-            className="rounded-full px-8 py-6 h-auto text-lg font-bold gap-2 border-2 border-orange-500 text-orange-500 hover:bg-orange-50 transition-all active:scale-95"
+            className="rounded-full px-8 py-6 h-auto text-lg font-bold gap-2 border-2 dark:border-[3px] border-orange-500 dark:border-border text-orange-500 dark:text-foreground hover:bg-orange-50 dark:hover:bg-primary/10 transition-all active:scale-95"
           >
             <Flame size={20} />
             Прожарь меня
@@ -43,7 +43,7 @@ const RoastsPage = () => {
         </div>
 
         {currentRoast ? (
-          <Card className="border-none shadow-xl bg-orange-500 text-white rounded-3xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+          <Card className="border-2 dark:border-[3px] border-border shadow-xl bg-orange-500 dark:bg-primary text-white dark:text-primary-foreground rounded-3xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
             <CardContent className="p-10 text-center relative">
               <div className="absolute top-4 right-4 opacity-20">
                 <Ghost size={40} />

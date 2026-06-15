@@ -19,9 +19,9 @@ const PageContainer = ({ children, className = "" }: PageContainerProps) => {
         <div className="w-full max-w-md mx-auto px-6 pt-6 relative z-50">
           <Link 
             to="/"
-            className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-white shadow-sm border border-border/50 hover:bg-secondary/20 transition-all active:scale-90"
+            className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-white dark:bg-card shadow-sm border-2 dark:border-[3px] border-border hover:bg-secondary/20 transition-all active:scale-90"
           >
-            <ChevronLeft size={24} className="text-primary" />
+            <ChevronLeft size={24} className="text-primary dark:text-foreground" />
           </Link>
         </div>
       )}
