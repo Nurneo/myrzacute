@@ -9,7 +9,8 @@ import { Calendar as CalendarIcon, Heart, Lock } from 'lucide-react';
 import { dailyMessages } from '@/content';
 
 const CalendarPage = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date(2024, 5, 1));
+  // Setting default date to January 1st, 2026
+  const [date, setDate] = useState<Date | undefined>(new Date(2026, 0, 1));
 
   const today = startOfDay(new Date());
   const isLocked = date ? isAfter(startOfDay(date), today) : false;
@@ -31,8 +32,9 @@ const CalendarPage = () => {
               mode="single"
               selected={date}
               onSelect={setDate}
-              defaultMonth={new Date(2024, 5)}
+              defaultMonth={new Date(2026, 0)}
               locale={ru}
+              weekStartsOn={1}
               className="rounded-md border-none"
               classNames={{
                 day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
