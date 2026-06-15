@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, Heart, Flame, Settings, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { dailyMessages } from '@/content/dailyMessages';
+import { format } from 'date-fns';
 
 const features = [
   {
@@ -40,10 +41,9 @@ const features = [
 ];
 
 const Home = () => {
-  // Get today's message based on the current date
-  // For the demo/app logic, we'll match the day of the month
-  const today = new Date().getDate();
-  const messageOfTheDay = dailyMessages.find(m => m.day === today)?.message || "Ты сегодня просто великолепна! ✨";
+  // Get today's message based on the current date string YYYY-MM-DD
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const messageOfTheDay = dailyMessages.find(m => m.date === todayStr)?.message || "Ты сегодня просто великолепна! ✨";
 
   return (
     <PageContainer>
