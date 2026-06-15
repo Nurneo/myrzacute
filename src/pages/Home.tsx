@@ -48,7 +48,7 @@ const Home = () => {
     <PageContainer>
       <header className="mb-10">
         <h1 className="text-4xl font-black text-foreground tracking-tighter">MYRZACUTE</h1>
-        <p className="text-muted-foreground font-medium">С возвращением, красавица.</p>
+        <p className="text-muted-foreground font-medium">С возвращением, львица.</p>
       </header>
 
       <SectionHeader title="Исследовать" subtitle="Что мы чувствуем сегодня?" />
