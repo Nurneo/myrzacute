@@ -1,18 +1,14 @@
+"use client";
+
 import React from 'react';
 import PageContainer from '@/components/layout/PageContainer';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Card, CardContent } from '@/components/ui/card';
-import { MessageCircle, Calendar, Heart, Flame, Settings } from 'lucide-react';
+import { Calendar, Heart, Flame, Settings, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { dailyMessages } from '@/content/dailyMessages';
 
 const features = [
-  {
-    title: "Сообщение дня",
-    description: "Кое-что приятное для тебя",
-    icon: MessageCircle,
-    color: "bg-primary/10 text-primary",
-    path: "/calendar"
-  },
   {
     title: "Календарь",
     description: "Наши особенные моменты",
@@ -44,12 +40,30 @@ const features = [
 ];
 
 const Home = () => {
+  // Get today's message based on the current date
+  // For the demo/app logic, we'll match the day of the month
+  const today = new Date().getDate();
+  const messageOfTheDay = dailyMessages.find(m => m.day === today)?.message || "Ты сегодня просто великолепна! ✨";
+
   return (
     <PageContainer>
-      <header className="mb-10">
+      <header className="mb-8">
         <h1 className="text-4xl font-black text-foreground tracking-tighter">MYRZACUTE</h1>
         <p className="text-muted-foreground font-medium">С возвращением, львица.</p>
       </header>
+
+      {/* Message of the Day Section */}
+      <div className="mb-10 relative">
+        <div className="absolute -top-4 -left-2 opacity-10 text-primary">
+          <Quote size={48} fill="currentColor" />
+        </div>
+        <div className="bg-primary/5 rounded-3xl p-8 border border-primary/10">
+          <p className="text-xs font-bold uppercase tracking-widest text-primary/60 mb-3">Сообщение дня</p>
+          <p className="text-xl font-medium text-foreground leading-relaxed italic">
+            "{messageOfTheDay}"
+          </p>
+        </div>
+      </div>
 
       <SectionHeader title="Исследовать" subtitle="Что мы чувствуем сегодня?" />
 
