@@ -2,7 +2,7 @@ import React from 'react';
 import PageContainer from '@/components/layout/PageContainer';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Card, CardContent } from '@/components/ui/card';
-import { MessageCircle, Calendar, Heart, Flame } from 'lucide-react';
+import { MessageCircle, Calendar, Heart, Flame, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const features = [
@@ -33,6 +33,13 @@ const features = [
     icon: Flame,
     color: "bg-orange-100 text-orange-500",
     path: "/roasts"
+  },
+  {
+    title: "Settings",
+    description: "Customize your experience",
+    icon: Settings,
+    color: "bg-muted text-muted-foreground",
+    path: "/settings"
   }
 ];
 
