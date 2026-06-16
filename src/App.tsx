@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ThemeProvider } from "next-themes";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 import Home from "./pages/Home";
 import CalendarPage from "./pages/Calendar";
@@ -55,13 +56,15 @@ const AppContent = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="light">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
-      </TooltipProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppContent />
+          </BrowserRouter>
+        </TooltipProvider>
+      </LanguageProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

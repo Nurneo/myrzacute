@@ -5,11 +5,15 @@ import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, isAfter, startOfDay } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { Calendar as CalendarIcon, Heart, Lock, Unlock, Sparkles } from 'lucide-react';
+import { Heart, Lock, Unlock, Sparkles } from 'lucide-react';
 import { dailyMessages } from '@/content';
+import { useLang } from '@/context/LanguageContext';
+import { translations, t } from '@/content/translations';
 
 const CalendarPage = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const { lang } = useLang();
+  const tr = translations.calendar;
 
   const today = startOfDay(new Date());
   const isLocked = date ? isAfter(startOfDay(date), today) : false;
@@ -17,11 +21,13 @@ const CalendarPage = () => {
   const selectedDateString = date ? format(date, 'yyyy-MM-dd') : '';
   const dailyContent = dailyMessages.find(m => m.date === selectedDateString);
 
+  const dateLocale = lang === 'ru' ? ru : undefined;
+
   return (
     <PageContainer>
       <SectionHeader
-        title="Наш календарь"
-        subtitle="Каждый день с тобой — подарок"
+        title={t(tr.title, lang)}
+        subtitle={t(tr.subtitle, lang)}
       />
 
       <div className="space-y-6">
@@ -33,7 +39,7 @@ const CalendarPage = () => {
               selected={date}
               onSelect={setDate}
               defaultMonth={new Date()}
-              locale={ru}
+              locale={dateLocale}
               weekStartsOn={1}
               className="rounded-md border-none"
               classNames={{
@@ -55,7 +61,6 @@ const CalendarPage = () => {
                 <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
                   <div className="absolute -top-6 -right-6 w-40 h-40 rounded-full bg-border/20" />
                   <div className="absolute -bottom-8 -left-8 w-52 h-52 rounded-full bg-border/10" />
-                  {/* Repeating lock icons as watermark */}
                   {[...Array(6)].map((_, i) => (
                     <Lock
                       key={i}
@@ -80,23 +85,23 @@ const CalendarPage = () => {
                   <div className="inline-flex items-center gap-1.5 bg-border/20 border-[2px] border-border rounded-full px-3 py-1 mb-4">
                     <span className="w-2 h-2 rounded-full bg-muted-foreground/60 animate-pulse" />
                     <span className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
-                      Закрыто
+                      {t(tr.locked, lang)}
                     </span>
                   </div>
 
                   {/* Date display */}
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">
-                    {format(date, 'EEEE', { locale: ru })}
+                    {format(date, 'EEEE', { locale: dateLocale })}
                   </p>
                   <h3 className="text-3xl font-black text-muted-foreground/80 tracking-tighter">
-                    {format(date, 'd MMMM yyyy', { locale: ru })}
+                    {format(date, lang === 'ru' ? 'd MMMM yyyy' : 'MMMM d, yyyy', { locale: dateLocale })}
                   </h3>
 
                   {/* Locked message */}
                   <div className="mt-6 pt-6 border-t-[3px] border-border/50">
                     <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2">
                       <p className="text-sm text-muted-foreground italic leading-relaxed">
-                        "Терпение, красавица. Этот сюрприз ждёт своего момента."
+                        &ldquo;{t(tr.lockedQuote, lang)}&rdquo;
                       </p>
                     </div>
                   </div>
@@ -126,16 +131,16 @@ const CalendarPage = () => {
                   <div className="inline-flex items-center gap-1.5 bg-primary/20 border-[2px] border-primary/40 rounded-full px-3 py-1 mb-4">
                     <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                     <span className="text-xs font-black uppercase tracking-[0.2em] text-primary">
-                      Открыто
+                      {t(tr.unlocked, lang)}
                     </span>
                   </div>
 
                   {/* Date display */}
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-1">
-                    {format(date, 'EEEE', { locale: ru })}
+                    {format(date, 'EEEE', { locale: dateLocale })}
                   </p>
                   <h3 className="text-3xl font-black text-foreground tracking-tighter">
-                    {format(date, 'd MMMM yyyy', { locale: ru })}
+                    {format(date, lang === 'ru' ? 'd MMMM yyyy' : 'MMMM d, yyyy', { locale: dateLocale })}
                   </h3>
 
                   {/* Unlocked content */}
@@ -149,7 +154,7 @@ const CalendarPage = () => {
                         </div>
                         <div className="bg-primary/10 backdrop-blur-sm p-4 rounded-2xl border-[3px] border-border">
                           <p className="text-base text-foreground font-medium leading-relaxed">
-                            "{dailyContent.message}"
+                            &ldquo;{dailyContent.message}&rdquo;
                           </p>
                         </div>
                       </div>
@@ -157,12 +162,12 @@ const CalendarPage = () => {
                       <div className="animate-in fade-in space-y-2">
                         <div className="inline-flex items-center gap-2 mb-1">
                           <Heart size={16} className="text-primary" fill="currentColor" />
-                          <span className="text-sm font-bold text-primary">Свободный день</span>
+                          <span className="text-sm font-bold text-primary">{t(tr.freeDay, lang)}</span>
                           <Heart size={16} className="text-primary" fill="currentColor" />
                         </div>
                         <div className="bg-primary/10 p-4 rounded-2xl border-[3px] border-border">
                           <p className="text-sm text-foreground/80 italic leading-relaxed">
-                            "На этот день пока нет сообщения, но я всё равно думаю о тебе."
+                            &ldquo;{t(tr.freeDayNote, lang)}&rdquo;
                           </p>
                         </div>
                       </div>
