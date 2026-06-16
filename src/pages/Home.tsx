@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import PageContainer from '@/components/layout/PageContainer';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Heart, Flame, Settings, Quote, Camera, Timer } from 'lucide-react';
+import { Calendar, Heart, Flame, Settings, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { dailyMessages } from '@/content/dailyMessages';
-import { format, differenceInDays } from 'date-fns';
+import { format } from 'date-fns';
 
 const features = [
   {
@@ -16,13 +16,6 @@ const features = [
     icon: Calendar,
     color: "bg-secondary text-primary",
     path: "/calendar"
-  },
-  {
-    title: "Воспоминания",
-    description: "Галерея нашей любви",
-    icon: Camera,
-    color: "bg-blue-100 text-blue-500",
-    path: "/memories"
   },
   {
     title: "Подкаты",
@@ -50,22 +43,12 @@ const features = [
 const Home = () => {
   const todayStr = format(new Date(), 'yyyy-MM-dd');
   const messageOfTheDay = dailyMessages.find(m => m.date === todayStr)?.message || "Ты сегодня просто великолепна! ✨";
-  
-  // Anniversary date (example: Jan 1, 2024)
-  const startDate = new Date(2024, 0, 1);
-  const daysTogether = differenceInDays(new Date(), startDate);
 
   return (
     <PageContainer>
-      <header className="mb-8 flex justify-between items-start">
-        <div>
-          <h1 className="text-4xl font-black text-foreground tracking-tighter">MYRZACUTE</h1>
-          <p className="text-muted-foreground font-medium">С возвращением, львица.</p>
-        </div>
-        <div className="bg-accent text-white px-4 py-2 rounded-2xl border-[3px] border-border shadow-sm flex items-center gap-2 animate-bounce">
-          <Timer size={16} />
-          <span className="font-black text-sm">{daysTogether} дн.</span>
-        </div>
+      <header className="mb-8">
+        <h1 className="text-4xl font-black text-foreground tracking-tighter">MYRZACUTE</h1>
+        <p className="text-muted-foreground font-medium">С возвращением, львица.</p>
       </header>
 
       <div className="mb-10 relative">
