@@ -2,10 +2,11 @@ import React from 'react';
 import PageContainer from '@/components/layout/PageContainer';
 import SectionHeader from '@/components/ui/SectionHeader';
 import ThemeToggle from '@/components/ThemeToggle';
-import { Globe, Check } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLang } from '@/context/LanguageContext';
 import { translations, t } from '@/content/translations';
+import { cn } from '@/lib/utils';
 
 const SettingsPage = () => {
   const { lang, setLang } = useLang();
@@ -32,37 +33,38 @@ const SettingsPage = () => {
           </h3>
           <Card className="border-[3px] border-border shadow-sm bg-card rounded-3xl overflow-hidden">
             <CardContent className="p-0">
-              <div className="divide-y-[3px] divide-border">
-                <button
-                  onClick={() => setLang('en')}
-                  className="w-full flex items-center justify-between p-5 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border-[3px] border-border">
-                      <Globe size={20} />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-bold">{t(tr.englishLabel, lang)}</p>
-                      <p className="text-xs text-muted-foreground">{t(tr.englishSub, lang)}</p>
-                    </div>
+              <div className="flex items-center justify-between p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border-[3px] border-border">
+                    <Globe size={20} />
                   </div>
-                  {lang === 'en' && <Check size={20} className="text-primary" />}
-                </button>
+                  {/* Show current language label */}
+                  <span className="font-bold text-foreground">
+                    {lang === 'en' ? 'EN' : 'RU'}
+                  </span>
+                </div>
 
+                {/* Toggle switch — shows the FLAG of the language you will switch TO */}
                 <button
-                  onClick={() => setLang('ru')}
-                  className="w-full flex items-center justify-between p-5 hover:bg-muted/50 transition-colors"
+                  onClick={() => setLang(lang === 'en' ? 'ru' : 'en')}
+                  aria-label="Toggle language"
+                  className={cn(
+                    "relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-colors duration-500 focus:outline-none border-border",
+                    lang === 'en' ? "bg-primary/20" : "bg-accent/20"
+                  )}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-accent/10 text-accent flex items-center justify-center border-[3px] border-border">
-                      <Globe size={20} />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-bold">{t(tr.russianLabel, lang)}</p>
-                      <p className="text-xs text-muted-foreground">{t(tr.russianSub, lang)}</p>
-                    </div>
-                  </div>
-                  {lang === 'ru' && <Check size={20} className="text-primary" />}
+                  {/* Sliding knob with the flag of the TARGET language */}
+                  <span
+                    className={cn(
+                      "inline-flex h-7 w-7 items-center justify-center transform rounded-full transition-transform duration-500 text-base shadow-sm",
+                      lang === 'en'
+                        ? "translate-x-10"   // currently EN → knob is on right, shows RU flag
+                        : "translate-x-1"    // currently RU → knob is on left, shows EN flag
+                    )}
+                  >
+                    {/* Show the flag you're switching TO */}
+                    {lang === 'en' ? '🇷🇺' : '🇬🇧'}
+                  </span>
                 </button>
               </div>
             </CardContent>
