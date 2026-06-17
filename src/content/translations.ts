@@ -100,6 +100,7 @@ export const translations = {
     title: { en: 'Settings', ru: 'Настройки' },
     subtitle: { en: 'Make the app yours', ru: 'Сделай приложение своим' },
     appearance: { en: 'Appearance', ru: 'Внешний вид' },
+    themeLabel: { en: 'Interface Mode', ru: 'Режим интерфейса' },
     preferences: { en: 'Preferences', ru: 'Предпочтения' },
     englishLabel: { en: 'English', ru: 'English' },
     englishSub: { en: 'Default language', ru: 'Язык по умолчанию' },

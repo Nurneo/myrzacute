@@ -4,10 +4,14 @@ import React from 'react';
 import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLang } from '@/context/LanguageContext';
+import { translations, t } from '@/content/translations';
 
 const ThemeToggle = () => {
   const { theme, setTheme } = useTheme();
+  const { lang } = useLang();
   const isDark = theme === 'dark';
+  const tr = translations.settings;
 
   const toggleTheme = () => {
     setTheme(isDark ? 'light' : 'dark');
@@ -19,6 +23,7 @@ const ThemeToggle = () => {
         <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border-[3px] border-border">
           {isDark ? <Moon size={20} /> : <Sun size={20} />}
         </div>
+        <span className="font-bold text-foreground">{t(tr.themeLabel, lang)}</span>
       </div>
 
       <button
