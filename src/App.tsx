@@ -11,7 +11,6 @@ import Home from "./pages/Home";
 import CalendarPage from "./pages/Calendar";
 import PickupLinesPage from "./pages/PickupLines";
 import RoastsPage from "./pages/Roasts";
-import SettingsPage from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Loading from "./pages/Loading";
 
@@ -45,7 +44,6 @@ const AppContent = () => {
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/pickup-lines" element={<PickupLinesPage />} />
           <Route path="/roasts" element={<RoastsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
