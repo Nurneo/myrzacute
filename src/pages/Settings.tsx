@@ -56,14 +56,20 @@ const SettingsPage = () => {
                   {/* Sliding knob with the flag of the TARGET language */}
                   <span
                     className={cn(
-                      "inline-flex h-7 w-7 items-center justify-center transform rounded-full transition-transform duration-500 text-base shadow-sm",
+                      "inline-flex h-7 w-7 items-center justify-center transform rounded-full transition-transform duration-500 overflow-hidden shadow-sm",
                       lang === 'en'
-                        ? "translate-x-10"   // currently EN → knob is on right, shows RU flag
-                        : "translate-x-1"    // currently RU → knob is on left, shows EN flag
+                        ? "translate-x-10"
+                        : "translate-x-1"
                     )}
                   >
-                    {/* Show the flag you're switching TO */}
-                    {lang === 'en' ? '🇷🇺' : '🇬🇧'}
+                    <img
+                      src={lang === 'en'
+                        ? "https://flagsapi.com/RU/flat/64.png"
+                        : "https://flagsapi.com/GB/flat/64.png"
+                      }
+                      alt={lang === 'en' ? "Switch to Russian" : "Switch to English"}
+                      className="w-7 h-7 object-cover rounded-full"
+                    />
                   </span>
                 </button>
               </div>
