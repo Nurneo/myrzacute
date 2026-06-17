@@ -54,7 +54,7 @@ export const translations = {
   // ── Calendar ─────────────────────────────────────────────
   calendar: {
     title: { en: 'Our Calendar', ru: 'Наш календарь' },
-    subtitle: { en: 'Every day with you is a gift', ru: 'Каждый день с тобой — подарок' },
+    subtitle: { en: 'Every day with you is a gift', ru: 'Каждый день с тобой - подарок' },
     locked: { en: 'Locked', ru: 'Закрыто' },
     unlocked: { en: 'Unlocked', ru: 'Открыто' },
     lockedQuote: {
