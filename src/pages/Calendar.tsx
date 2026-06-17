@@ -1,246 +1,293 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import PageContainer from '@/components/layout/PageContainer';
-import SectionHeader from '@/components/ui/SectionHeader';
-import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent } from '@/components/ui/card';
-import { format, isAfter, startOfDay, addDays, subDays, isBefore } from 'date-fns';
+import { format, isAfter, startOfDay, addDays, subDays, isBefore, getDaysInMonth, getDay, isSameDay } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Heart, Lock, Unlock, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { dailyMessages } from '@/content';
 import { useLang } from '@/context/LanguageContext';
 import { translations, t } from '@/content/translations';
+import { cn } from '@/lib/utils';
 
-// First available date in the data
 const FIRST_DATE = new Date(2026, 5, 1); // June 1 2026
+const WEEK_DAYS_RU = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const WEEK_DAYS_EN = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
 const CalendarPage = () => {
-  const [date, setDate] = useState<Date>(new Date());
+  const today = startOfDay(new Date());
+  const [selected, setSelected] = useState<Date>(today);
+  const [viewMonth, setViewMonth] = useState<Date>(new Date(today.getFullYear(), today.getMonth(), 1));
   const { lang } = useLang();
   const tr = translations.calendar;
-
-  const today = startOfDay(new Date());
-  const isLocked = isAfter(startOfDay(date), today);
-
-  const selectedDateString = format(date, 'yyyy-MM-dd');
-  const dailyContent = dailyMessages.find(m => m.date === selectedDateString);
-
   const dateLocale = lang === 'ru' ? ru : undefined;
 
-  // Navigate day by day — clamp to FIRST_DATE on the left
+  const isLocked = isAfter(startOfDay(selected), today);
+  const selectedDateString = format(selected, 'yyyy-MM-dd');
+  const dailyContent = dailyMessages.find(m => m.date === selectedDateString);
+
+  // Build the grid for viewMonth
+  const { days, monthLabel } = useMemo(() => {
+    const year = viewMonth.getFullYear();
+    const month = viewMonth.getMonth();
+    const total = getDaysInMonth(viewMonth);
+    // Monday-based: getDay returns 0=Sun..6=Sat, convert to Mon=0..Sun=6
+    const firstWeekday = (getDay(new Date(year, month, 1)) + 6) % 7;
+    const label = format(viewMonth, lang === 'ru' ? 'LLLL yyyy' : 'MMMM yyyy', { locale: dateLocale });
+    const cells: (Date | null)[] = [
+      ...Array(firstWeekday).fill(null),
+      ...Array.from({ length: total }, (_, i) => new Date(year, month, i + 1)),
+    ];
+    // Pad to full rows
+    while (cells.length % 7 !== 0) cells.push(null);
+    return { days: cells, monthLabel: label };
+  }, [viewMonth, lang, dateLocale]);
+
+  const canGoPrev = !isBefore(
+    new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1),
+    new Date(FIRST_DATE.getFullYear(), FIRST_DATE.getMonth(), 1)
+  );
+
+  const prevMonth = () => {
+    if (!canGoPrev) return;
+    setViewMonth(d => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  };
+  const nextMonth = () => setViewMonth(d => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+
+  const handleDayClick = (day: Date | null) => {
+    if (!day) return;
+    if (isBefore(startOfDay(day), FIRST_DATE)) return;
+    setSelected(day);
+  };
+
   const goToPrev = () => {
-    setDate(prev => {
+    setSelected(prev => {
       const candidate = subDays(prev, 1);
-      return isBefore(candidate, FIRST_DATE) ? FIRST_DATE : candidate;
+      if (isBefore(candidate, FIRST_DATE)) return prev;
+      // Also update viewMonth if we cross a month boundary
+      if (candidate.getMonth() !== prev.getMonth()) {
+        setViewMonth(new Date(candidate.getFullYear(), candidate.getMonth(), 1));
+      }
+      return candidate;
     });
   };
 
   const goToNext = () => {
-    setDate(prev => addDays(prev, 1));
+    setSelected(prev => {
+      const next = addDays(prev, 1);
+      if (next.getMonth() !== prev.getMonth()) {
+        setViewMonth(new Date(next.getFullYear(), next.getMonth(), 1));
+      }
+      return next;
+    });
   };
 
-  // Only allow selecting days from June 2026 onward; block outside/empty cells
-  const handleSelect = (d: Date | undefined) => {
-    if (!d) return;
-    if (isBefore(startOfDay(d), FIRST_DATE)) return;
-    setDate(d);
-  };
+  const weekDays = lang === 'ru' ? WEEK_DAYS_RU : WEEK_DAYS_EN;
 
   return (
     <PageContainer>
-      <SectionHeader
-        title={t(tr.title, lang)}
-        subtitle={t(tr.subtitle, lang)}
-      />
+      {/* Page Header */}
+      <div className="mb-6">
+        <h1 className="text-4xl font-black text-foreground tracking-tighter">
+          {t(tr.title, lang)}
+        </h1>
+        <p className="text-sm text-primary mt-1 font-medium">
+          {t(tr.subtitle, lang)}
+        </p>
+      </div>
 
-      <div className="space-y-6">
-        {/* Calendar Card */}
-        <Card className="border-[3px] border-border shadow-sm overflow-hidden bg-card rounded-3xl">
-          <CardContent className="p-4 flex justify-center">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={handleSelect}
-              defaultMonth={date}
-              locale={dateLocale}
-              weekStartsOn={1}
-              showOutsideDays={false}
-              disabled={{ before: FIRST_DATE }}
-              className="rounded-md border-none"
-              classNames={{
-                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                month: "space-y-2 w-full",
-                month_caption: "flex justify-center pt-1 relative items-center mb-2",
-                caption_label: "text-sm font-black tracking-wide uppercase",
-                nav: "space-x-1 flex items-center",
-                button_previous: "absolute left-1 h-8 w-8 bg-transparent border-[2px] border-border rounded-xl flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity",
-                button_next: "absolute right-1 h-8 w-8 bg-transparent border-[2px] border-border rounded-xl flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity",
-                month_grid: "w-full border-collapse",
-                weekdays: "flex",
-                weekday: "text-muted-foreground rounded-md flex-1 font-bold text-[0.7rem] text-center py-1",
-                week: "flex w-full mt-1",
-                day: "flex-1 h-10 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-primary/10 [&:has([aria-selected])]:rounded-xl focus-within:relative focus-within:z-20",
-                day_button: "w-full h-10 p-0 font-semibold rounded-xl transition-all duration-200 hover:bg-primary/20 hover:scale-105 aria-selected:opacity-100",
-                selected: "bg-primary text-primary-foreground rounded-xl shadow-md scale-105 hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                today: "bg-secondary text-primary font-black ring-2 ring-primary/40 rounded-xl",
-                outside: "opacity-0 pointer-events-none",
-                disabled: "text-muted-foreground/30 pointer-events-none",
-                hidden: "invisible pointer-events-none",
-              }}
-            />
-          </CardContent>
-        </Card>
+      <div className="space-y-4">
+        {/* ── Calendar Card ── */}
+        <div className="rounded-3xl border-[3px] border-border bg-card overflow-hidden shadow-sm">
+          {/* Month navigation */}
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <button
+              onClick={prevMonth}
+              disabled={!canGoPrev}
+              className="w-9 h-9 rounded-2xl border-[3px] border-border bg-background/40 flex items-center justify-center transition-all duration-200 hover:bg-primary/20 active:scale-95 disabled:opacity-25 disabled:pointer-events-none"
+            >
+              <ChevronLeft size={16} className="text-primary" />
+            </button>
+            <span className="font-black text-sm uppercase tracking-[0.15em] text-primary">
+              {monthLabel}
+            </span>
+            <button
+              onClick={nextMonth}
+              className="w-9 h-9 rounded-2xl border-[3px] border-border bg-background/40 flex items-center justify-center transition-all duration-200 hover:bg-primary/20 active:scale-95"
+            >
+              <ChevronRight size={16} className="text-primary" />
+            </button>
+          </div>
 
-        {/* Status Card */}
-        <div className="relative">
-          {isLocked ? (
-            /* ─── LOCKED ─── */
-            <Card className="border-[3px] border-border rounded-3xl overflow-hidden bg-secondary/60">
-              <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-                <div className="absolute -top-6 -right-6 w-40 h-40 rounded-full bg-border/20" />
-                <div className="absolute -bottom-8 -left-8 w-52 h-52 rounded-full bg-border/10" />
-                {[...Array(6)].map((_, i) => (
-                  <Lock
-                    key={i}
-                    size={28}
-                    className="absolute text-border/20"
-                    style={{
-                      top: `${[10, 30, 55, 20, 65, 40][i]}%`,
-                      left: `${[5, 25, 10, 70, 55, 85][i]}%`,
-                      transform: `rotate(${[-10, 5, -5, 15, -8, 3][i]}deg)`,
-                    }}
-                  />
-                ))}
+          {/* Weekday headers */}
+          <div className="grid grid-cols-7 px-3 pb-1">
+            {weekDays.map(d => (
+              <div key={d} className="text-center text-[11px] font-black uppercase tracking-wider text-primary/60 py-1">
+                {d}
+              </div>
+            ))}
+          </div>
+
+          {/* Day grid */}
+          <div className="grid grid-cols-7 gap-y-1 px-3 pb-5">
+            {days.map((day, idx) => {
+              if (!day) {
+                return <div key={`empty-${idx}`} className="h-11" />;
+              }
+
+              const dayStart = startOfDay(day);
+              const isBeforeFirst = isBefore(dayStart, FIRST_DATE);
+              const isToday = isSameDay(day, today);
+              const isSelected = isSameDay(day, selected);
+              const isFuture = isAfter(dayStart, today);
+
+              return (
+                <button
+                  key={day.toISOString()}
+                  onClick={() => handleDayClick(day)}
+                  disabled={isBeforeFirst}
+                  className={cn(
+                    'relative h-11 w-full flex flex-col items-center justify-center rounded-xl text-sm font-bold transition-all duration-200',
+                    // Base state
+                    !isBeforeFirst && 'cursor-pointer',
+                    isBeforeFirst && 'opacity-20 pointer-events-none',
+                    // Not selected hover
+                    !isSelected && !isBeforeFirst && 'hover:bg-primary/20 hover:scale-105 active:scale-95',
+                    // Today indicator (not selected)
+                    isToday && !isSelected && 'ring-2 ring-primary/60 ring-inset text-primary',
+                    // Future (locked) days
+                    isFuture && !isSelected && 'text-primary/50',
+                    // Past/today (unlocked)
+                    !isFuture && !isSelected && !isToday && 'text-primary',
+                    // Selected
+                    isSelected && 'bg-primary text-primary-foreground scale-105 shadow-lg ring-2 ring-primary/40 ring-offset-1 ring-offset-card',
+                  )}
+                >
+                  <span>{day.getDate()}</span>
+                  {/* Dot for days that have a message */}
+                  {!isFuture && dailyMessages.some(m => m.date === format(day, 'yyyy-MM-dd')) && (
+                    <span className={cn(
+                      'absolute bottom-1 w-1 h-1 rounded-full',
+                      isSelected ? 'bg-primary-foreground/70' : 'bg-primary/60'
+                    )} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Status / Message Card ── */}
+        {isLocked ? (
+          <div className="rounded-3xl border-[3px] border-border bg-secondary/60 overflow-hidden shadow-sm">
+            {/* Decorative blobs */}
+            <div className="absolute inset-0 pointer-events-none select-none overflow-hidden rounded-3xl">
+              {[...Array(5)].map((_, i) => (
+                <Lock
+                  key={i}
+                  size={24}
+                  className="absolute text-border/20"
+                  style={{ top: `${[12, 40, 60, 25, 70][i]}%`, left: `${[8, 70, 20, 85, 55][i]}%` }}
+                />
+              ))}
+            </div>
+
+            <div className="p-6 relative z-10">
+              {/* Nav row */}
+              <div className="flex items-center gap-3 mb-5">
+                <button onClick={goToPrev} className="w-10 h-10 rounded-2xl border-[3px] border-border bg-card/50 flex items-center justify-center hover:bg-card transition-all duration-200 hover:scale-105 active:scale-95">
+                  <ChevronLeft size={18} className="text-muted-foreground" />
+                </button>
+                <div className="flex-1 text-center">
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                    {format(selected, 'EEEE', { locale: dateLocale })}
+                  </p>
+                  <p className="text-xl font-black text-muted-foreground/80 tracking-tight">
+                    {format(selected, lang === 'ru' ? 'd MMMM yyyy' : 'MMMM d, yyyy', { locale: dateLocale })}
+                  </p>
+                </div>
+                <button onClick={goToNext} className="w-10 h-10 rounded-2xl border-[3px] border-border bg-card/50 flex items-center justify-center hover:bg-card transition-all duration-200 hover:scale-105 active:scale-95">
+                  <ChevronRight size={18} className="text-muted-foreground" />
+                </button>
               </div>
 
-              <CardContent className="p-8 text-center relative z-10">
-                {/* Arrow navigation */}
-                <div className="flex items-center justify-between mb-4">
-                  <button
-                    onClick={goToPrev}
-                    className="w-10 h-10 rounded-2xl border-[3px] border-border bg-card/60 flex items-center justify-center hover:bg-card transition-all duration-200 hover:scale-105 active:scale-95"
-                    aria-label="Previous day"
-                  >
-                    <ChevronLeft size={18} className="text-muted-foreground" />
-                  </button>
-                  <div className="flex-1 mx-3">
-                    <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
-                      {format(date, 'EEEE', { locale: dateLocale })}
-                    </p>
-                    <h3 className="text-2xl font-black text-muted-foreground/80 tracking-tighter">
-                      {format(date, lang === 'ru' ? 'd MMMM yyyy' : 'MMMM d, yyyy', { locale: dateLocale })}
-                    </h3>
-                  </div>
-                  <button
-                    onClick={goToNext}
-                    className="w-10 h-10 rounded-2xl border-[3px] border-border bg-card/60 flex items-center justify-center hover:bg-card transition-all duration-200 hover:scale-105 active:scale-95"
-                    aria-label="Next day"
-                  >
-                    <ChevronRight size={18} className="text-muted-foreground" />
-                  </button>
+              {/* Lock badge */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-14 h-14 rounded-2xl bg-border/30 border-[3px] border-border flex items-center justify-center shadow-inner">
+                  <Lock size={26} className="text-muted-foreground" strokeWidth={2.5} />
                 </div>
-
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-border/30 border-[3px] border-border mb-3 shadow-inner">
-                  <Lock size={30} className="text-muted-foreground" strokeWidth={2.5} />
-                </div>
-
-                <div className="inline-flex items-center gap-1.5 bg-border/20 border-[2px] border-border rounded-full px-3 py-1 mb-4">
-                  <span className="w-2 h-2 rounded-full bg-muted-foreground/60 animate-pulse" />
-                  <span className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
+                <div className="flex items-center gap-2 bg-border/20 border-[2px] border-border rounded-full px-4 py-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-pulse" />
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">
                     {t(tr.locked, lang)}
                   </span>
                 </div>
-
-                <div className="mt-4 pt-4 border-t-[3px] border-border/50">
-                  <p className="text-sm text-muted-foreground italic leading-relaxed">
-                    &ldquo;{t(tr.lockedQuote, lang)}&rdquo;
+                <p className="text-sm text-muted-foreground/70 italic text-center leading-relaxed pt-1">
+                  &ldquo;{t(tr.lockedQuote, lang)}&rdquo;
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-3xl border-[3px] border-border bg-card overflow-hidden shadow-sm">
+            <div className="p-6">
+              {/* Nav row */}
+              <div className="flex items-center gap-3 mb-5">
+                <button onClick={goToPrev} className="w-10 h-10 rounded-2xl border-[3px] border-border bg-background/40 flex items-center justify-center hover:bg-primary/20 transition-all duration-200 hover:scale-105 active:scale-95">
+                  <ChevronLeft size={18} className="text-primary" />
+                </button>
+                <div className="flex-1 text-center">
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">
+                    {format(selected, 'EEEE', { locale: dateLocale })}
+                  </p>
+                  <p className="text-xl font-black text-foreground tracking-tight">
+                    {format(selected, lang === 'ru' ? 'd MMMM yyyy' : 'MMMM d, yyyy', { locale: dateLocale })}
                   </p>
                 </div>
-              </CardContent>
-            </Card>
-          ) : (
-            /* ─── UNLOCKED ─── */
-            <Card className="border-[3px] border-border rounded-3xl overflow-hidden bg-primary/10">
-              <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-                <div className="absolute -top-8 -right-8 w-48 h-48 rounded-full bg-primary/10" />
-                <div className="absolute -bottom-10 -left-10 w-60 h-60 rounded-full bg-primary/5" />
-                <Heart
-                  size={90}
-                  fill="currentColor"
-                  className="absolute -bottom-3 -right-3 text-primary/10"
-                />
+                <button onClick={goToNext} className="w-10 h-10 rounded-2xl border-[3px] border-border bg-background/40 flex items-center justify-center hover:bg-primary/20 transition-all duration-200 hover:scale-105 active:scale-95">
+                  <ChevronRight size={18} className="text-primary" />
+                </button>
               </div>
 
-              <CardContent className="p-8 text-center relative z-10">
-                {/* Arrow navigation */}
-                <div className="flex items-center justify-between mb-4">
-                  <button
-                    onClick={goToPrev}
-                    className="w-10 h-10 rounded-2xl border-[3px] border-border bg-card/60 flex items-center justify-center hover:bg-primary/20 transition-all duration-200 hover:scale-105 active:scale-95"
-                    aria-label="Previous day"
-                  >
-                    <ChevronLeft size={18} className="text-primary" />
-                  </button>
-                  <div className="flex-1 mx-3">
-                    <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">
-                      {format(date, 'EEEE', { locale: dateLocale })}
-                    </p>
-                    <h3 className="text-2xl font-black text-foreground tracking-tighter">
-                      {format(date, lang === 'ru' ? 'd MMMM yyyy' : 'MMMM d, yyyy', { locale: dateLocale })}
-                    </h3>
-                  </div>
-                  <button
-                    onClick={goToNext}
-                    className="w-10 h-10 rounded-2xl border-[3px] border-border bg-card/60 flex items-center justify-center hover:bg-primary/20 transition-all duration-200 hover:scale-105 active:scale-95"
-                    aria-label="Next day"
-                  >
-                    <ChevronRight size={18} className="text-primary" />
-                  </button>
+              {/* Unlock badge */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-14 h-14 rounded-2xl bg-primary/20 border-[3px] border-border flex items-center justify-center shadow-sm">
+                  <Unlock size={26} className="text-primary" strokeWidth={2.5} />
                 </div>
-
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/20 border-[3px] border-border mb-3 shadow-sm">
-                  <Unlock size={28} className="text-primary" strokeWidth={2.5} />
-                </div>
-
-                <div className="inline-flex items-center gap-1.5 bg-primary/20 border-[2px] border-primary/40 rounded-full px-3 py-1 mb-4">
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  <span className="text-xs font-black uppercase tracking-[0.2em] text-primary">
+                <div className="flex items-center gap-2 bg-primary/20 border-[2px] border-primary/40 rounded-full px-4 py-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">
                     {t(tr.unlocked, lang)}
                   </span>
                 </div>
 
-                <div className="mt-4 pt-4 border-t-[3px] border-border">
-                  {dailyContent ? (
-                    <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2">
-                      <div className="inline-flex items-center gap-1.5 mb-1">
-                        <Sparkles size={14} className="text-primary" />
-                        <h4 className="font-black text-lg text-primary">{dailyContent.title}</h4>
-                        <Sparkles size={14} className="text-primary" />
-                      </div>
-                      <div className="bg-primary/10 backdrop-blur-sm p-4 rounded-2xl border-[3px] border-border">
-                        <p className="text-base text-foreground font-medium leading-relaxed">
-                          &ldquo;{dailyContent.message}&rdquo;
-                        </p>
-                      </div>
+                {/* Message */}
+                {dailyContent ? (
+                  <div className="w-full mt-1 space-y-2">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <Sparkles size={13} className="text-primary" />
+                      <span className="font-black text-base text-primary">{dailyContent.title}</span>
+                      <Sparkles size={13} className="text-primary" />
                     </div>
-                  ) : (
-                    <div className="animate-in fade-in space-y-2">
-                      <div className="inline-flex items-center gap-2 mb-1">
-                        <Heart size={16} className="text-primary" fill="currentColor" />
-                        <span className="text-sm font-bold text-primary">{t(tr.freeDay, lang)}</span>
-                        <Heart size={16} className="text-primary" fill="currentColor" />
-                      </div>
-                      <div className="bg-primary/10 p-4 rounded-2xl border-[3px] border-border">
-                        <p className="text-sm text-foreground/80 italic leading-relaxed">
-                          &ldquo;{t(tr.freeDayNote, lang)}&rdquo;
-                        </p>
-                      </div>
+                    <div className="bg-primary/10 border-[3px] border-border rounded-2xl p-4">
+                      <p className="text-sm text-foreground font-medium leading-relaxed text-center">
+                        &ldquo;{dailyContent.message}&rdquo;
+                      </p>
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+                  </div>
+                ) : (
+                  <div className="w-full mt-1">
+                    <div className="bg-primary/10 border-[3px] border-border rounded-2xl p-4 flex items-center justify-center gap-2">
+                      <Heart size={14} className="text-primary" fill="currentColor" />
+                      <p className="text-sm text-foreground/80 italic">
+                        {t(tr.freeDay, lang)}
+                      </p>
+                      <Heart size={14} className="text-primary" fill="currentColor" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </PageContainer>
   );
