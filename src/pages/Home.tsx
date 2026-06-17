@@ -154,10 +154,6 @@ const Home = () => {
             </span>
           </button>
         </div>
-
-        <p className="text-center text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-50 pt-2">
-          MYRZACUTE v1.0.0
-        </p>
       </div>
     </PageContainer>
   );
