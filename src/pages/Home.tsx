@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PageContainer from '@/components/layout/PageContainer';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,12 +13,71 @@ import { translations, t } from '@/content/translations';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 
+// Weighted word pool — львица is dominant
+const WORDS_RU = [
+  'львица', 'львица', 'львица', 'львица', 'львица',
+  'тигрица', 'гелендваген', 'ламборгини',
+  'красавица', 'качок', 'диер', 'мырзахан',
+];
+const WORDS_EN = [
+  'lioness', 'lioness', 'lioness', 'lioness', 'lioness',
+  'tigress', 'G-wagon', 'Lambo',
+  'beauty', 'swole queen', 'dear', 'myrzakhan',
+];
+
+function pickRandom<T>(arr: T[], exclude?: T): T {
+  const pool = exclude !== undefined ? arr.filter(w => w !== exclude) : arr;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function useTypewriter(target: string, speed = 60) {
+  const [displayed, setDisplayed] = useState(target);
+  const [typing, setTyping] = useState(false);
+  const prevTarget = useRef(target);
+
+  useEffect(() => {
+    if (prevTarget.current === target) return;
+    prevTarget.current = target;
+    setTyping(true);
+    let i = 0;
+    setDisplayed('');
+    const interval = setInterval(() => {
+      i++;
+      setDisplayed(target.slice(0, i));
+      if (i >= target.length) {
+        clearInterval(interval);
+        setTyping(false);
+      }
+    }, speed);
+    return () => clearInterval(interval);
+  }, [target, speed]);
+
+  return { displayed, typing };
+}
+
 const Home = () => {
   const { lang, setLang } = useLang();
   const { theme, setTheme } = useTheme();
   const tr = translations.home;
   const trSettings = translations.settings;
   const isDark = theme === 'dark';
+
+  const words = lang === 'ru' ? WORDS_RU : WORDS_EN;
+  const [currentWord, setCurrentWord] = useState(() => pickRandom(words));
+  const { displayed, typing } = useTypewriter(currentWord, 55);
+
+  // Rotate every 20 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentWord(prev => pickRandom(lang === 'ru' ? WORDS_RU : WORDS_EN, prev));
+    }, 20000);
+    return () => clearInterval(timer);
+  }, [lang]);
+
+  // When language changes, pick a fresh word immediately
+  useEffect(() => {
+    setCurrentWord(pickRandom(lang === 'ru' ? WORDS_RU : WORDS_EN));
+  }, [lang]);
 
   const todayStr = format(new Date(), 'yyyy-MM-dd');
   const messageOfTheDay = dailyMessages.find(m => m.date === todayStr)?.message || t(tr.messageFallback, lang);
@@ -51,7 +110,16 @@ const Home = () => {
     <PageContainer>
       <header className="mb-8">
         <h1 className="text-4xl font-black text-foreground tracking-tighter">MYRZACUTE</h1>
-        <p className="text-muted-foreground font-medium">{t(tr.subtitle, lang)}</p>
+        <p className="text-muted-foreground font-medium">
+          {lang === 'ru' ? 'С возвращением, ' : 'Welcome back, '}
+          <span className="text-primary font-bold">
+            {displayed}
+            {typing && (
+              <span className="inline-block w-[2px] h-[1em] bg-primary align-middle ml-[1px] animate-pulse" />
+            )}
+          </span>
+          .
+        </p>
       </header>
 
       <div className="mb-10 relative">
