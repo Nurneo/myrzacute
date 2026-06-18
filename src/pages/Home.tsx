@@ -6,7 +6,7 @@ import SectionHeader from '@/components/ui/SectionHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, Heart, Flame, Settings, Quote, Camera, Timer } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { dailyMessages } from '@/content/dailyMessages';
+import { dailyMessagesByDate } from '@/content/dailyMessages';
 import { format, differenceInDays } from 'date-fns';
 
 const features = [
@@ -49,7 +49,7 @@ const features = [
 
 const Home = () => {
   const todayStr = format(new Date(), 'yyyy-MM-dd');
-  const messageOfTheDay = dailyMessages.find(m => m.date === todayStr)?.message || "Ты сегодня просто великолепна! ✨";
+  const messageOfTheDay = dailyMessagesByDate.get(todayStr)?.message || "Ты сегодня просто великолепна! ✨";
   
   // Anniversary date (example: Jan 1, 2024)
   const startDate = new Date(2024, 0, 1);

@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ThemeProvider } from "next-themes";
@@ -15,20 +14,16 @@ import SettingsPage from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Loading from "./pages/Loading";
 
-const queryClient = new QueryClient();
-
 const AppContent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
-    // Start exit animation after 2 seconds
     const exitTimer = setTimeout(() => {
       setIsExiting(true);
-      // Completely remove loading component after animation finishes
       const removeTimer = setTimeout(() => {
         setIsLoading(false);
-      }, 1000); // Matches the duration-1000 in Loading.tsx
+      }, 1000);
       return () => clearTimeout(removeTimer);
     }, 2000);
 
@@ -55,17 +50,15 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="light">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+  <ThemeProvider attribute="class" defaultTheme="light">
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </TooltipProvider>
+  </ThemeProvider>
 );
 
 export default App;

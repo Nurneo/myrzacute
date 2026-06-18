@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { format, isAfter, startOfDay } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Heart, Lock } from 'lucide-react';
-import { dailyMessages } from '@/content';
+import { dailyMessagesByDate } from '@/content';
 
 const CalendarPage = () => {
   const [date, setDate] = useState<Date | undefined>(new Date(2026, 0, 1));
@@ -15,7 +15,7 @@ const CalendarPage = () => {
   const isLocked = date ? isAfter(startOfDay(date), today) : false;
   
   const selectedDateString = date ? format(date, 'yyyy-MM-dd') : '';
-  const dailyContent = dailyMessages.find(m => m.date === selectedDateString);
+  const dailyContent = dailyMessagesByDate.get(selectedDateString);
 
   return (
     <PageContainer>

@@ -2,8 +2,13 @@ import React from 'react';
 import PageContainer from '@/components/layout/PageContainer';
 import SectionHeader from '@/components/ui/SectionHeader';
 import ThemeToggle from '@/components/ThemeToggle';
-import { Globe, Check } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import PreferenceToggles from '@/components/ui/PreferenceToggles';
+import { Globe } from 'lucide-react';
+
+const languageOptions = [
+  { id: 'en', label: 'English', sublabel: 'Язык по умолчанию', icon: Globe, iconColor: 'bg-primary/10 text-primary' },
+  { id: 'ru', label: 'Русский', sublabel: 'Русский язык', icon: Globe, iconColor: 'bg-accent/10 text-accent' },
+];
 
 const SettingsPage = () => {
   const [language, setLanguage] = React.useState<'en' | 'ru'>('ru');
@@ -23,43 +28,11 @@ const SettingsPage = () => {
 
         <section>
           <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4 px-1">Предпочтения</h3>
-          <Card className="border-[3px] border-border shadow-sm bg-card rounded-3xl overflow-hidden">
-            <CardContent className="p-0">
-              <div className="divide-y-[3px] divide-border">
-                <button 
-                  onClick={() => setLanguage('en')}
-                  className="w-full flex items-center justify-between p-5 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border-[3px] border-border">
-                      <Globe size={20} />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-bold">English</p>
-                      <p className="text-xs text-muted-foreground">Язык по умолчанию</p>
-                    </div>
-                  </div>
-                  {language === 'en' && <Check size={20} className="text-primary" />}
-                </button>
-
-                <button 
-                  onClick={() => setLanguage('ru')}
-                  className="w-full flex items-center justify-between p-5 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-accent/10 text-accent flex items-center justify-center border-[3px] border-border">
-                      <Globe size={20} />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-bold">Русский</p>
-                      <p className="text-xs text-muted-foreground">Русский язык</p>
-                    </div>
-                  </div>
-                  {language === 'ru' && <Check size={20} className="text-primary" />}
-                </button>
-              </div>
-            </CardContent>
-          </Card>
+          <PreferenceToggles
+            options={languageOptions}
+            activeId={language}
+            onChange={(id) => setLanguage(id as 'en' | 'ru')}
+          />
         </section>
 
         <div className="pt-4 text-center">

@@ -6,3 +6,5 @@ export const dailyMessages: DailyMessage[] = [
   { date: "2026-06-25", title: "25 июня", message: "Нет ничего прекраснее тебя" },
   { date: "2026-06-26", title: "26 июня", message: "С днем рождения, дорогая!" },
 ];
+
+export const dailyMessagesByDate = new Map(dailyMessages.map(m => [m.date, m]));
