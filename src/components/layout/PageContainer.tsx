@@ -3,6 +3,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 interface PageContainerProps {
   children: React.ReactNode;
@@ -12,9 +13,21 @@ interface PageContainerProps {
 const PageContainer = ({ children, className = "" }: PageContainerProps) => {
   const location = useLocation();
   const isHome = location.pathname === '/';
+  const { theme, resolvedTheme } = useTheme();
+  const isDark = theme === 'dark' || resolvedTheme === 'dark';
+
+  const backgroundImage = isDark 
+    ? "url('/wallpapers/wallpaper-dark.webp')"
+    : "url('/wallpapers/wallpaper-light.webp')";
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background relative overflow-x-hidden">
+      {/* Custom Wallpaper Background */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none z-0 transition-opacity duration-300"
+        style={{ backgroundImage }}
+      />
+
       {!isHome && (
         <div className="w-full max-w-md mx-auto px-6 pt-6 relative z-50">
           <Link 
@@ -25,7 +38,7 @@ const PageContainer = ({ children, className = "" }: PageContainerProps) => {
           </Link>
         </div>
       )}
-      <main className={`flex-1 w-full max-w-md mx-auto px-6 pt-6 pb-20 ${className}`}>
+      <main className={`flex-1 w-full max-w-md mx-auto px-6 pt-6 pb-20 relative z-10 ${className}`}>
         {children}
       </main>
     </div>
