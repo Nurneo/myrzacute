@@ -109,6 +109,20 @@
   }
 }
 
+@keyframes vibrate {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  15% { transform: translate(-5px, -3px) rotate(-1.5deg); }
+  30% { transform: translate(5px, 2px) rotate(1.5deg); }
+  45% { transform: translate(-4px, 3px) rotate(-1deg); }
+  60% { transform: translate(4px, -2px) rotate(1deg); }
+  75% { transform: translate(-2px, -3px) rotate(-0.5deg); }
+  90% { transform: translate(2px, 3px) rotate(0.5deg); }
+}
+
+.animate-vibrate {
+  animation: vibrate 0.15s linear infinite;
+}
+
 /* ── Global Smooth Scrolling ── */
 html {
   scroll-behavior: smooth;
@@ -256,4 +270,9 @@ html {
 .animate-float-chaotic-5,
 .animate-float-chaotic-6 {
   will-change: transform;
+}
+
+/* Disable default iOS tap highlight on buttons & links */
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
 }

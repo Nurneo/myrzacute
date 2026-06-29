@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import PageContainer from '@/components/layout/PageContainer';
 import { useLang } from '@/context/LanguageContext';
 import { translations, t } from '@/content/translations';
-import { Heart, Lock, Delete, ArrowLeft } from 'lucide-react';
+import { Heart, Lock, Delete, ArrowLeft, X } from 'lucide-react';
 import { toast } from 'sonner';
 import FallingItems from '@/components/FallingItems';
+import HeartExplosion from '@/components/HeartExplosion';
 import { cn } from '@/lib/utils';
 
 const PASSCODE = "260626";
@@ -17,11 +18,16 @@ const SecretPage = () => {
 
   const [passcode, setPasscode] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(() => {
-    return sessionStorage.getItem('secret_unlocked') === 'true';
+    return localStorage.getItem('secret_unlocked') === 'true';
   });
   const [isLetterOpen, setIsLetterOpen] = useState(false);
   const [isWallpaperDark, setIsWallpaperDark] = useState(false);
   const [shake, setShake] = useState(false);
+  const [showExplosion, setShowExplosion] = useState(false);
+  const [answer, setAnswer] = useState<'yes' | 'no' | null>(() => {
+    return localStorage.getItem('secret_love_answer') as 'yes' | 'no' | null;
+  });
+  const [isVibrating, setIsVibrating] = useState(false);
 
   const handleOpenLetter = () => {
     setIsWallpaperDark(true);
@@ -30,10 +36,30 @@ const SecretPage = () => {
     }, 1000);
   };
 
-  // Sync unlock state to sessionStorage
+  const handleYesClick = () => {
+    setAnswer('yes');
+    localStorage.setItem('secret_love_answer', 'yes');
+    setShowExplosion(true);
+  };
+
+  const handleNoClick = () => {
+    setAnswer('no');
+    localStorage.setItem('secret_love_answer', 'no');
+    setShowExplosion(true);
+    setIsVibrating(true);
+    toast.error(
+      lang === 'ru' ? 'Неправильный выбор! Попробуй еще раз 😜' : 'Wrong choice! Try again 😜',
+      { position: 'top-center', duration: 3000 }
+    );
+    setTimeout(() => {
+      setIsVibrating(false);
+    }, 1000);
+  };
+
+  // Sync unlock state to localStorage
   useEffect(() => {
     if (isUnlocked) {
-      sessionStorage.setItem('secret_unlocked', 'true');
+      localStorage.setItem('secret_unlocked', 'true');
     }
   }, [isUnlocked]);
 
@@ -85,7 +111,7 @@ const SecretPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden bg-transparent">
+    <div className="min-h-screen flex flex-col relative overflow-y-auto overflow-x-hidden bg-transparent">
       {/* ── Custom Dynamic Wallpaper Backgrounds ── */}
       {isUnlocked && (
         <>
@@ -236,20 +262,129 @@ const SecretPage = () => {
                   </div>
                 </div>
               ) : (
-                /* Opened Letter view */
-                <div className="w-full max-w-sm bg-[#FFFDF6] dark:bg-[#FAF6EC] border-[3px] border-border rounded-3xl p-6 shadow-2xl animate-open-letter flex flex-col max-h-[500px]">
-                  {/* Seal header decoration */}
-                  <div className="flex justify-center -mt-10 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-red-500 border-[3px] border-[#FFFDF6] flex items-center justify-center shadow-md">
-                      <Heart size={16} className="text-white fill-white" />
+                /* Container holding both Letter Card and Question Card BELOW it */
+                <div className="w-full flex flex-col items-center gap-6">
+                  {/* Opened Letter view */}
+                  <div className={cn(
+                    "w-full max-w-sm bg-[#FFFDF6] dark:bg-[#FAF6EC] border-[3px] border-border rounded-3xl p-6 shadow-2xl animate-open-letter flex flex-col max-h-[420px] transition-all",
+                    isVibrating && "animate-vibrate"
+                  )}>
+                    {/* Seal header decoration */}
+                    <div className="flex justify-center -mt-10 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-red-500 border-[3px] border-[#FFFDF6] flex items-center justify-center shadow-md">
+                        <Heart size={16} className="text-white fill-white" />
+                      </div>
+                    </div>
+
+                    {/* Letter text wrapper (scrollable) */}
+                    <div className="flex-1 overflow-y-auto pr-1 select-text custom-scrollbar mask-scroller scroll-smooth">
+                      {(() => {
+                        const fullText = t(tr.letterBody, lang).trim();
+                        const lastNewlineIndex = fullText.lastIndexOf('\n');
+                        if (lastNewlineIndex !== -1) {
+                          const bodyText = fullText.substring(0, lastNewlineIndex).trim();
+                          const lastLine = fullText.substring(lastNewlineIndex).trim();
+                          return (
+                            <>
+                              <p className="font-serif text-base text-[#4F2B1F] leading-relaxed whitespace-pre-line italic text-left">
+                                {bodyText}
+                              </p>
+                              
+                              {/* Decorative Separator */}
+                              <div className="flex items-center justify-center my-5 gap-3 pointer-events-none">
+                                <span className="h-[1px] w-12 bg-[#4F2B1F]/15"></span>
+                                <Heart size={14} className="text-red-500/50 fill-red-500/20 animate-pulse" />
+                                <span className="h-[1px] w-12 bg-[#4F2B1F]/15"></span>
+                              </div>
+
+                              {/* Highlighted Signature */}
+                              <div className="relative overflow-hidden rounded-2xl border border-rose-200/50 dark:border-rose-900/30 bg-rose-50/40 dark:bg-rose-950/10 px-4 py-3.5 text-center shadow-[0_4px_16px_-4px_rgba(244,63,94,0.08)] backdrop-blur-[0.5px]">
+                                {/* Background soft glow decoration */}
+                                <div className="absolute -left-4 -top-4 w-12 h-12 rounded-full bg-rose-300/10 blur-xl pointer-events-none" />
+                                <div className="absolute -right-4 -bottom-4 w-12 h-12 rounded-full bg-red-300/10 blur-xl pointer-events-none" />
+                                
+                                <p className="font-serif text-[18px] font-semibold text-rose-600 dark:text-rose-400 italic tracking-wide leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">
+                                  {lastLine}
+                                </p>
+                              </div>
+                            </>
+                          );
+                        }
+                        return (
+                          <p className="font-serif text-base text-[#4F2B1F] leading-relaxed whitespace-pre-line italic text-left">
+                            {fullText}
+                          </p>
+                        );
+                      })()}
                     </div>
                   </div>
 
-                  {/* Letter text wrapper (scrollable) */}
-                  <div className="flex-1 overflow-y-auto pr-1 select-text custom-scrollbar mask-scroller scroll-smooth">
-                    <p className="font-serif text-base text-[#4F2B1F] leading-relaxed whitespace-pre-line italic text-left">
-                      {t(tr.letterBody, lang)}
-                    </p>
+                  {/* Question & Answer Card BELOW the letter */}
+                  <div className="w-full max-w-sm bg-card border-[3px] border-border rounded-3xl p-6 shadow-2xl animate-open-letter flex flex-col items-center text-center relative overflow-hidden">
+                    {answer === null ? (
+                      /* ── 1. INITIAL STATE: Show Question ── */
+                      <div className="w-full py-2">
+                        <p className="font-serif text-[18px] font-black text-foreground mb-6">
+                          {lang === 'ru' ? 'А ты МЕНЯ 🫵 любишь?' : 'Do YOU 🫵 love me?'}
+                        </p>
+                        <div className="flex justify-center gap-4 w-full">
+                          {/* YES Button */}
+                          <button
+                            onClick={handleYesClick}
+                            className="flex-1 py-3 rounded-2xl bg-red-500 hover:bg-red-600 active:scale-95 text-white font-bold text-base shadow-md transition-all duration-150 flex items-center justify-center gap-2"
+                          >
+                            <Heart size={16} className="fill-white text-white animate-pulse" />
+                            {lang === 'ru' ? 'Да' : 'Yes'}
+                          </button>
+                          
+                          {/* NO Button */}
+                          <button
+                            onClick={handleNoClick}
+                            className="flex-1 py-3 rounded-2xl bg-slate-600 hover:bg-slate-700 active:scale-95 text-white font-bold text-base shadow-md transition-all duration-150"
+                          >
+                            {lang === 'ru' ? 'Нет' : 'No'}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* ── 2. ANSWERED STATE: Yes / No Outcome ── */
+                      <div className="w-full flex flex-col items-center animate-open-letter">
+                        {/* 1) PHOTO */}
+                        <div className="w-full max-w-[200px] aspect-square rounded-2xl overflow-hidden border-[3px] border-border shadow-md bg-white dark:bg-card flex items-center justify-center mb-4 transition-transform duration-300 hover:scale-105">
+                          <img
+                            src={answer === 'yes' ? '/video/cartierrug.jpg' : '/video/crying.jpg'}
+                            alt={answer === 'yes' ? 'Happy' : 'Sad'}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+
+                        {/* 3) THE TEXT */}
+                        <p className={cn(
+                          "font-serif text-lg font-black leading-relaxed px-2 mb-6",
+                          answer === 'yes' ? "text-red-500 dark:text-red-400" : "text-slate-600 dark:text-slate-400"
+                        )}>
+                          {answer === 'yes' 
+                            ? 'И я тебя люблю, диер)'
+                            : 'Неправильно, попробуй ещё раз('
+                          }
+                        </p>
+
+                        {/* Show "Fine"/"Корошо" button on "No" to try again */}
+                        {answer === 'no' && (
+                          <div className="flex justify-center w-full mt-2">
+                            <button
+                              onClick={() => {
+                                setAnswer(null);
+                                localStorage.removeItem('secret_love_answer');
+                              }}
+                              className="px-8 py-2.5 rounded-2xl border-[3px] border-border bg-white dark:bg-card text-foreground hover:bg-secondary/20 active:scale-95 font-bold text-sm tracking-wide shadow-sm transition-all duration-150"
+                            >
+                              {lang === 'ru' ? 'Корошо' : 'Fine'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -259,6 +394,14 @@ const SecretPage = () => {
         )}
 
       </PageContainer>
+
+      {/* Heart Explosion Particles */}
+      {showExplosion && (
+        <HeartExplosion 
+          chars={answer === 'yes' ? undefined : ['💔', '🥀', '🥺', '🌧️']}
+          onComplete={() => setShowExplosion(false)} 
+        />
+      )}
     </div>
   );
 };

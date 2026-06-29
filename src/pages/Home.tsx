@@ -73,7 +73,7 @@ const Home = () => {
           keysPressed = keysPressed.slice(-targetPasscode.length);
         }
         if (keysPressed === targetPasscode) {
-          sessionStorage.setItem('secret_unlocked', 'true');
+          localStorage.setItem('secret_unlocked', 'true');
           navigate('/secret');
         }
       } else {
