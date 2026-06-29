@@ -28,8 +28,8 @@ export const translations = {
       ru: 'Исследовать',
     },
     exploreSubtitle: {
-      en: 'What are we feeling today?',
-      ru: 'Что мы чувствуем сегодня?',
+      en: 'How do you feel?',
+      ru: 'Как настроение?',
     },
     moodometer: {
       title: { en: 'Moodometer', ru: 'Настроениеметр' },
@@ -92,7 +92,7 @@ export const translations = {
 
   // ── Roasts ───────────────────────────────────────────────
   roasts: {
-    title: { en: 'Roast Mode', ru: 'Режим прожарки' },
+    title: { en: 'Roast Mode', ru: 'Режим булинга' },
     subtitle: {
       en: "This is purely out of love)",
       ru: 'Та я это любя юноу)',
@@ -111,7 +111,7 @@ export const translations = {
     title: { en: 'Settings', ru: 'Настройки' },
     subtitle: { en: 'Make the app yours', ru: 'Сделай приложение своим' },
     appearance: { en: 'Appearance', ru: 'Внешний вид' },
-    themeLabel: { en: 'Interface Mode', ru: 'Режим интерфейса' },
+    themeLabel: { en: 'Mode', ru: 'Режим' },
     preferences: { en: 'Preferences', ru: 'Предпочтения' },
     englishLabel: { en: 'English', ru: 'English' },
     englishSub: { en: 'Default language', ru: 'Язык по умолчанию' },
@@ -123,6 +123,18 @@ export const translations = {
   notFound: {
     message: { en: 'Oops! Too short to see this page)', ru: 'Упс, слишком короткая чтобы увидеть)' },
     back: { en: 'Go back home', ru: 'Вернуться на главную' },
+  },
+  // ── Secret ───────────────────────────────────────────────
+  secret: {
+    passcodeTitle: { en: 'Enter Passcode', ru: 'Введите код доступа' },
+    passcodeSubtitle: { en: 'Only for the lioness 🦁', ru: 'Только для львицы 🦁' },
+    wrongPasscode: { en: 'Er, wrong, try again!', ru: 'Э ты чо серьёзно? Давай ещё раз!' },
+    letterClosedHint: { en: 'You have a letter. Click to open it.', ru: 'У тебя письмо. Нажми, чтобы открыть.' },
+    letterOpenHeader: { en: 'My Love Letter', ru: 'Мое любовное письмо' },
+    letterBody: {
+      en: "My dear,\n\nFor years I have walked this Earth thinking that 'Destiny' does not exist. It, in fact, does exist. I was fully convinced in it when I met you.\n\nWhat are the odds that all these tiny coincidences would bring us together? I would go as far as to say that WE are a match made in heaven)\n\nLook, if there is one gift I could give you, then I would give you the ability to see yourself from my eyes. So that you could see how truly gorgeous you are. So that you could see the full extent of your own beauty. I can never give you this gift fully, but I hope, some day, I will make you understand how much I adore you. Maybe through my words, or maybe through my actions. But one day, I will make you understand just how much I love you.\n\nMyrzagul, I love you.",
+      ru: "Моя дорогая львица,\n\nТо, что мы вместе - чудо. Каковы шансы того что мы вместе сядем на НЦТ, или что наш ОРТ будет в одной школе, или что мы вообще найдем общий язык?\n\nЧто я хочу этим сказать - это судьба. Как бы кринжово не было, но это факт. И я бесконечно рад тому что все эти случайности позволили мне быть с тобой, ведь ты - лучшая девушка на свете. Абсолютная львица, тигрица, красавица и умница. Невероятно крутая особа которую я очень уважаю. Умная и смышленная девушка, чья красота уступает лишь её милоте)\n\nКогда ты смотришь на меня - я теряюсь с твоих глазах и это не шутка(ты сама это видела). Когда ты улыбаешься, я невольно расслабляюсь и будто на душе становится легче)\n\nМырзагүл, я люблю тебя. "
+    }
   },
 } as const;
 

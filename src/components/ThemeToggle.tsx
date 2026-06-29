@@ -29,18 +29,18 @@ const ThemeToggle = () => {
       <button
         onClick={toggleTheme}
         className={cn(
-          "relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-colors duration-500 focus:outline-none",
+          "relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-colors duration-500 focus:outline-none border-border",
           isDark
-            ? "bg-[#4C9DB0] border-[#4F2B1F]"
-            : "bg-[#EFCEDB] border-[#FFEBAF]"
+            ? "bg-primary/20"
+            : "bg-accent/20"
         )}
       >
         <span
           className={cn(
-            "inline-block h-6 w-6 transform rounded-full transition-transform duration-500 border-[3px]",
+            "inline-block h-6 w-6 transform rounded-full transition-transform duration-500 border-[3px] border-border",
             isDark
-              ? "translate-x-11 bg-[#FFEBAF] border-[#4F2B1F]"
-              : "translate-x-1 bg-[#4F2B1F] border-[#FFEBAF]"
+              ? "translate-x-11 bg-primary"
+              : "translate-x-1 bg-accent"
           )}
         />
       </button>

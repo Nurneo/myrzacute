@@ -46,7 +46,7 @@ const PickupLinesPage = () => {
                 &ldquo;{currentLine}&rdquo;
               </p>
               <div className="mt-6 flex justify-center">
-                <Heart size={24} className="text-accent animate-pulse" fill="currentColor" />
+                <Heart size={24} className="text-red-500 fill-red-500 animate-pulse" />
               </div>
             </CardContent>
           </Card>

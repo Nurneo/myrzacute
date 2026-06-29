@@ -172,6 +172,8 @@ const MoodometerModal = ({ isOpen, onClose, selectedDate }: MoodometerModalProps
         src={`/moods/mood${level}.svg`}
         alt={`Mood ${level}`}
         className={cn(sizeClass, "object-contain transition-all duration-300")}
+        loading="lazy"
+        decoding="async"
         onError={() => setImgErrors((prev) => ({ ...prev, [level]: true }))}
       />
     );

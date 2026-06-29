@@ -16,7 +16,9 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     try {
       const stored = localStorage.getItem('myrzacute-lang');
       if (stored === 'en' || stored === 'ru') return stored;
-    } catch {}
+    } catch (e) {
+      console.warn('Failed to read language from localStorage:', e);
+    }
     return 'ru';
   });
 
@@ -24,7 +26,9 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     setLangState(newLang);
     try {
       localStorage.setItem('myrzacute-lang', newLang);
-    } catch {}
+    } catch (e) {
+      console.warn('Failed to write language to localStorage:', e);
+    }
   };
 
   return (

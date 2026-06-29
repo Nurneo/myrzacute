@@ -217,7 +217,7 @@ const CalendarPage = () => {
 
         {/* ── Status / Message Card ── */}
         {isLocked ? (
-          <div className="rounded-3xl border-[3px] border-border bg-secondary/60 overflow-hidden shadow-sm">
+          <div key={selectedDateString} className="rounded-3xl border-[3px] border-border bg-secondary/60 overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
             {/* Decorative blobs */}
             <div className="absolute inset-0 pointer-events-none select-none overflow-hidden rounded-3xl">
               {[...Array(5)].map((_, i) => (
@@ -267,7 +267,7 @@ const CalendarPage = () => {
             </div>
           </div>
         ) : (
-          <div className="rounded-3xl border-[3px] border-border bg-card overflow-hidden shadow-sm">
+          <div key={selectedDateString} className="rounded-3xl border-[3px] border-border bg-card overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="p-6">
               {/* Nav row */}
               <div className="flex items-center gap-3 mb-5">
@@ -342,6 +342,8 @@ const CalendarPage = () => {
                               src={`/moods/mood${dayMood}.svg`}
                               alt={`Mood ${dayMood}`}
                               className="w-8 h-8 object-contain"
+                              loading="lazy"
+                              decoding="async"
                               onError={() => setImgErrors(prev => ({ ...prev, [dayMood]: true }))}
                             />
                           )}

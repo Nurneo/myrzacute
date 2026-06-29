@@ -30,18 +30,21 @@ const PreferenceToggles = () => {
         <button
           onClick={() => setTheme(isDark ? "light" : "dark")}
           aria-label="Toggle theme"
-          className={cn(
-            "relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-colors duration-500 focus:outline-none",
-            isDark ? "bg-[#4C9DB0] border-[#4F2B1F]" : "bg-[#EFCEDB] border-[#FFEBAF]",
-          )}
+          className="relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-all duration-500 focus:outline-none"
+          style={{
+            backgroundColor: isDark ? '#4c9db0' : '#a89bf2',
+            borderColor: isDark ? '#ffebaf' : '#050505',
+          }}
         >
           <span
             className={cn(
               "inline-block h-6 w-6 transform rounded-full transition-transform duration-500 border-[3px]",
-              isDark
-                ? "translate-x-11 bg-[#FFEBAF] border-[#4F2B1F]"
-                : "translate-x-1 bg-[#4F2B1F] border-[#FFEBAF]",
+              isDark ? "translate-x-11" : "translate-x-1"
             )}
+            style={{
+              backgroundColor: isDark ? '#ffebaf' : '#050505',
+              borderColor: isDark ? '#ffebaf' : '#050505',
+            }}
           />
         </button>
       </div>
@@ -57,10 +60,11 @@ const PreferenceToggles = () => {
         <button
           onClick={() => setLang(lang === "en" ? "ru" : "en")}
           aria-label="Toggle language"
-          className={cn(
-            "relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-colors duration-500 focus:outline-none border-border",
-            lang === "en" ? "bg-primary/20" : "bg-accent/20",
-          )}
+          className="relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-all duration-500 focus:outline-none"
+          style={{
+            backgroundColor: isDark ? '#4c9db0' : '#a89bf2',
+            borderColor: isDark ? '#ffebaf' : '#050505',
+          }}
         >
           <span
             className={cn(

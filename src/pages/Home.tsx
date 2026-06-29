@@ -5,7 +5,7 @@ import PageContainer from '@/components/layout/PageContainer';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, Heart, Flame, Quote, Sun, Moon, Globe } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { dailyMessages } from '@/content/dailyMessages';
 import { format } from 'date-fns';
 import { useLang } from '@/context/LanguageContext';
@@ -57,8 +57,33 @@ function useTypewriter(target: string, speed = 60) {
 }
 
 const Home = () => {
+  const navigate = useNavigate();
   const { lang, setLang } = useLang();
   const { theme, setTheme } = useTheme();
+
+  // Listen to keystrokes to redirect on 260626 passcode
+  useEffect(() => {
+    let keysPressed = '';
+    const targetPasscode = '260626';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') {
+        keysPressed += e.key;
+        if (keysPressed.length > targetPasscode.length) {
+          keysPressed = keysPressed.slice(-targetPasscode.length);
+        }
+        if (keysPressed === targetPasscode) {
+          sessionStorage.setItem('secret_unlocked', 'true');
+          navigate('/secret');
+        }
+      } else {
+        keysPressed = '';
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [navigate]);
   const tr = translations.home;
   const trSettings = translations.settings;
   const isDark = theme === 'dark';
@@ -113,7 +138,7 @@ const Home = () => {
       title: t(tr.features.pickupLines.title, lang),
       description: t(tr.features.pickupLines.description, lang),
       icon: Heart,
-      color: "bg-accent/10 text-accent",
+      color: "bg-red-500/10 text-red-500",
       path: "/pickup-lines",
     },
     {
@@ -127,21 +152,33 @@ const Home = () => {
 
   return (
     <PageContainer>
-      <header className="mb-8">
-        <h1 className="text-4xl font-black text-foreground tracking-tighter">MYRZACUTE</h1>
-        <p className="text-muted-foreground font-medium">
-          {lang === 'ru' ? 'С возвращением, ' : 'Welcome back, '}
-          <span className="text-primary font-bold">
-            {displayed}
-            {typing && (
-              <span className="inline-block w-[2px] h-[1em] bg-primary align-middle ml-[1px] animate-pulse" />
-            )}
-          </span>
-          .
-        </p>
+      <header className="mb-8 flex justify-between items-start animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
+        <div>
+          <h1 className="text-4xl font-black text-foreground tracking-tighter">MYRZACUTE</h1>
+          <p className="text-muted-foreground font-medium">
+            {lang === 'ru' ? 'С возвращением, ' : 'Welcome back, '}
+            <span className="text-primary font-bold">
+              {displayed}
+              {typing && (
+                <span className="inline-block w-[2px] h-[1em] bg-primary align-middle ml-[1px] animate-pulse" />
+              )}
+            </span>
+            .
+          </p>
+        </div>
+        <Link
+          to="/secret"
+          className="w-10 h-10 rounded-2xl bg-card border-[3px] border-border flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm text-red-500 hover:bg-red-500/10"
+          title={lang === 'ru' ? 'Секрет' : 'Secret'}
+        >
+          <Heart size={20} className="fill-red-500" />
+        </Link>
       </header>
 
-      <div className="mb-10 relative">
+      <div 
+        className="mb-10 relative animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
+        style={{ animationDelay: '150ms', animationFillMode: 'both' }}
+      >
         <div className="absolute -top-4 -left-2 opacity-10 text-primary">
           <Quote size={48} fill="currentColor" />
         </div>
@@ -155,7 +192,10 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-6">
+      <div 
+        className="flex items-center justify-between mb-6 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
+        style={{ animationDelay: '300ms', animationFillMode: 'both' }}
+      >
         <div>
           <h2 className="text-2xl font-bold text-foreground tracking-tight">{t(tr.exploreTitle, lang)}</h2>
           <p className="text-muted-foreground text-sm mt-1">{t(tr.exploreSubtitle, lang)}</p>
@@ -176,6 +216,8 @@ const Home = () => {
                 src={`/moods/mood${selectedMood}.svg`}
                 alt="Current Mood"
                 className="w-8 h-8 object-contain"
+                loading="lazy"
+                decoding="async"
                 onError={() => setMoodImgError(true)}
               />
             )
@@ -186,9 +228,17 @@ const Home = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {features.map((feature) => (
-          <Link key={feature.path} to={feature.path}>
-            <Card className="overflow-hidden border-[3px] border-border shadow-sm hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]">
+        {features.map((feature, index) => (
+          <Link 
+            key={feature.path} 
+            to={feature.path}
+            className="animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
+            style={{
+              animationDelay: `${400 + index * 100}ms`,
+              animationFillMode: 'both',
+            }}
+          >
+            <Card className="overflow-hidden border-[3px] border-border shadow-sm hover:shadow-md hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,235,175,0.12)] transition-all cursor-pointer group active:scale-[0.98]">
               <CardContent className="p-6 flex items-center gap-4">
                 <div className={`p-3 rounded-2xl ${feature.color} group-hover:scale-110 transition-transform`}>
                   <feature.icon size={24} />
@@ -204,9 +254,12 @@ const Home = () => {
       </div>
 
       {/* Theme + Language toggles */}
-      <div className="mt-10 flex flex-col gap-4">
+      <div 
+        className="mt-10 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
+        style={{ animationDelay: '700ms', animationFillMode: 'both' }}
+      >
         {/* Theme toggle */}
-        <div className="flex items-center justify-between p-6 rounded-3xl border-[3px] border-border bg-card shadow-sm">
+        <div className="flex items-center justify-between p-6 rounded-3xl border-[3px] border-border bg-card shadow-sm hover:shadow-[0_0_15px_rgba(255,235,175,0.06)] transition-all duration-300">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border-[3px] border-border">
               {isDark ? <Moon size={20} /> : <Sun size={20} />}
@@ -216,26 +269,27 @@ const Home = () => {
           <button
             onClick={() => setTheme(isDark ? 'light' : 'dark')}
             aria-label="Toggle theme"
-            className={cn(
-              "relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-colors duration-500 focus:outline-none",
-              isDark
-                ? "bg-[#4C9DB0] border-[#4F2B1F]"
-                : "bg-[#EFCEDB] border-[#FFEBAF]"
-            )}
+            className="relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-all duration-500 focus:outline-none"
+            style={{
+              backgroundColor: isDark ? '#4c9db0' : '#a89bf2',
+              borderColor: isDark ? '#ffebaf' : '#050505',
+            }}
           >
             <span
               className={cn(
                 "inline-block h-6 w-6 transform rounded-full transition-transform duration-500 border-[3px]",
-                isDark
-                  ? "translate-x-11 bg-[#FFEBAF] border-[#4F2B1F]"
-                  : "translate-x-1 bg-[#4F2B1F] border-[#FFEBAF]"
+                isDark ? "translate-x-11" : "translate-x-1"
               )}
+              style={{
+                backgroundColor: isDark ? '#ffebaf' : '#050505',
+                borderColor: isDark ? '#ffebaf' : '#050505',
+              }}
             />
           </button>
         </div>
 
         {/* Language toggle */}
-        <div className="flex items-center justify-between p-6 rounded-3xl border-[3px] border-border bg-card shadow-sm">
+        <div className="flex items-center justify-between p-6 rounded-3xl border-[3px] border-border bg-card shadow-sm hover:shadow-[0_0_15px_rgba(255,235,175,0.06)] transition-all duration-300">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border-[3px] border-border">
               <Globe size={20} />
@@ -247,10 +301,11 @@ const Home = () => {
           <button
             onClick={() => setLang(lang === 'en' ? 'ru' : 'en')}
             aria-label="Toggle language"
-            className={cn(
-              "relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-colors duration-500 focus:outline-none border-border",
-              lang === 'en' ? "bg-primary/20" : "bg-accent/20"
-            )}
+            className="relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-all duration-500 focus:outline-none"
+            style={{
+              backgroundColor: isDark ? '#4c9db0' : '#a89bf2',
+              borderColor: isDark ? '#ffebaf' : '#050505',
+            }}
           >
             <span
               className={cn(
@@ -265,6 +320,8 @@ const Home = () => {
                 }
                 alt={lang === 'en' ? "Switch to Russian" : "Switch to English"}
                 className="w-7 h-7 object-cover rounded-full"
+                loading="lazy"
+                decoding="async"
               />
             </span>
           </button>
