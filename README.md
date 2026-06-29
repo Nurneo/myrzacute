@@ -1,1 +1,3 @@
-# Welcome to your Dyad app
+# Myrzacute
+
+Daily Vows, Calendar, and Moodometer companion app.

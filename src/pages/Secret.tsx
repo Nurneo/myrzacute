@@ -228,7 +228,7 @@ const SecretPage = () => {
             </div>
 
             {/* Letter Envelope Display */}
-            <div className="flex-1 flex flex-col items-center justify-center min-h-[350px]">
+            <div className="flex-1 flex items-center justify-center min-h-[350px]">
               {isLetterOpen && <FallingItems />}
               {!isLetterOpen ? (
                 /* Closed Envelope representation */
@@ -388,9 +388,6 @@ const SecretPage = () => {
                   </div>
                 </div>
               )}
-              <div className="text-[10px] text-muted-foreground/30 font-mono mt-4 pointer-events-none select-none">
-                V2
-              </div>
             </div>
 
           </div>
