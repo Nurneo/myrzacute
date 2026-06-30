@@ -52,7 +52,7 @@ export const translations = {
         description: { en: 'Cringe but fun and cute', ru: 'Лютый кринге но мило и смешно' },
       },
       roasts: {
-        title: { en: 'Roast Mode', ru: 'Режим прожарки' },
+        title: { en: 'Roast Mode', ru: 'Режим булинга' },
         description: { en: 'Because I love teasing you)', ru: 'Потому что я люблю тебя дразнить)' },
       },
       settings: {
