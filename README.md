@@ -1,3 +1,3 @@
 # Myrzacute
 
-Daily Vows, Calendar, and Moodometer companion app.
+Daily Vows, Calendar, and Feedback companion app.

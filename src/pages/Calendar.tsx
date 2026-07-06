@@ -7,7 +7,12 @@ import { dailyMessages } from '@/content';
 import { useLang } from '@/context/LanguageContext';
 import { translations, t } from '@/content/translations';
 import { cn } from '@/lib/utils';
-import MoodometerModal from '@/components/MoodometerModal';
+import FeedbackModal from '@/components/FeedbackModal';
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2 } from "lucide-react";
+import { fetchAllFeedback, saveFeedback } from "@/utils/feedbackStorage";
+import { sendTelegramNotification } from "@/utils/telegram";
+import { showSuccess } from "@/utils/toast";
 
 const FIRST_DATE = new Date(2026, 5, 1); // June 1 2026
 const WEEK_DAYS_RU = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -24,29 +29,70 @@ const CalendarPage = () => {
   const isLocked = isAfter(startOfDay(selected), today);
   const selectedDateString = format(selected, 'yyyy-MM-dd');
 
-  // Moodometer + Calendar states
-  const [isMoodometerOpen, setIsMoodometerOpen] = useState(false);
-  const [loggedMoods, setLoggedMoods] = useState<Record<string, number>>({});
+  // Feedback + Calendar states
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [loggedFeedback, setLoggedFeedback] = useState<Record<string, { mood: number | null; note: string | null }>>({});
   const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({});
 
-  const loadLoggedMoods = () => {
-    const moods: Record<string, number> = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('lioness-mood-')) {
-        const datePart = key.replace('lioness-mood-', '');
-        const val = localStorage.getItem(key);
-        if (val) {
-          moods[datePart] = Number(val);
-        }
-      }
-    }
-    setLoggedMoods(moods);
+  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [noteInput, setNoteInput] = useState("");
+  const [isSavingNote, setIsSavingNote] = useState(false);
+
+  const loadFeedback = async () => {
+    const feedback = await fetchAllFeedback();
+    setLoggedFeedback(feedback);
   };
 
   React.useEffect(() => {
-    loadLoggedMoods();
+    loadFeedback();
   }, []);
+
+  React.useEffect(() => {
+    setIsEditingNote(false);
+  }, [selected]);
+
+  const handleSaveNote = async () => {
+    const dateStr = format(selected, 'yyyy-MM-dd');
+    const trimmedNote = noteInput.trim();
+
+    // 1. Optimistic Update: Render note text immediately
+    setLoggedFeedback(prev => ({
+      ...prev,
+      [dateStr]: {
+        mood: prev[dateStr]?.mood ?? null,
+        note: trimmedNote || null
+      }
+    }));
+
+    setIsSavingNote(true);
+    try {
+      await saveFeedback(dateStr, {
+        note: trimmedNote || null
+      });
+
+      if (trimmedNote) {
+        let tgMsg = `🦁 <b>New Calendar Note from Lioness!</b>\n\n`;
+        tgMsg += `📅 <b>Date:</b> <code>${dateStr}</code>\n`;
+        tgMsg += `📝 <b>Note:</b>\n<blockquote>${trimmedNote}</blockquote>`;
+
+        await sendTelegramNotification(tgMsg);
+      }
+
+      setIsEditingNote(false);
+      showSuccess(lang === 'ru' ? "Заметка сохранена! ❤️" : "Note saved! ❤️");
+    } catch (err: any) {
+      console.error(err);
+      showError(
+        lang === 'ru'
+          ? `Не удалось сохранить заметку: ${err.message || err}`
+          : `Failed to save note: ${err.message || err}`
+      );
+      // Rollback optimistic update on write failure
+      await loadFeedback();
+    } finally {
+      setIsSavingNote(false);
+    }
+  };
   const dailyContent = dailyMessages.find(m => m.date === selectedDateString);
 
   // Build the grid for viewMonth
@@ -197,7 +243,7 @@ const CalendarPage = () => {
                       )} />
                     )}
                     {/* Tiny mood emoji indicator */}
-                    {!isFuture && loggedMoods[format(day, 'yyyy-MM-dd')] && (
+                    {!isFuture && loggedFeedback[format(day, 'yyyy-MM-dd')]?.mood && (
                       <span className="text-[10px] leading-none">
                         {{
                           1: '🤒',
@@ -205,7 +251,7 @@ const CalendarPage = () => {
                           3: '🦁',
                           4: '✨',
                           5: '👑',
-                        }[loggedMoods[format(day, 'yyyy-MM-dd')]]}
+                        }[loggedFeedback[format(day, 'yyyy-MM-dd')]?.mood as number]}
                       </span>
                     )}
                   </div>
@@ -328,8 +374,8 @@ const CalendarPage = () => {
                 {/* Daily Mood section */}
                 {(() => {
                   const dayStr = format(selected, 'yyyy-MM-dd');
-                  const dayMood = loggedMoods[dayStr];
-                  const moodTr = translations.home.moodometer;
+                  const dayMood = loggedFeedback[dayStr]?.mood;
+                  const moodTr = translations.home.feedback;
 
                   return dayMood ? (
                     <div className="w-full mt-3 bg-primary/5 border-[3px] border-border border-dashed rounded-2xl p-4 flex items-center justify-between gap-4">
@@ -362,7 +408,7 @@ const CalendarPage = () => {
                           {dayMood}/5
                         </span>
                         <button
-                          onClick={() => setIsMoodometerOpen(true)}
+                          onClick={() => setIsFeedbackOpen(true)}
                           className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/20 px-2.5 py-1.5 rounded-xl border border-primary/30 hover:scale-105 active:scale-95 transition-all cursor-pointer"
                         >
                           {lang === 'ru' ? 'Изменить' : 'Edit'}
@@ -378,11 +424,86 @@ const CalendarPage = () => {
                         </p>
                       </div>
                       <button
-                        onClick={() => setIsMoodometerOpen(true)}
+                        onClick={() => setIsFeedbackOpen(true)}
                         className="text-xs font-black uppercase tracking-wider bg-primary border-[3px] border-border text-primary-foreground px-4 py-2 rounded-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer flex-shrink-0"
                       >
                         {lang === 'ru' ? 'Записать' : 'Log Mood'}
                       </button>
+                    </div>
+                  );
+                })()}
+
+                {/* Her calendar notes section */}
+                {(() => {
+                  const dayStr = format(selected, 'yyyy-MM-dd');
+                  const dayNote = loggedFeedback[dayStr]?.note || "";
+
+                  return (
+                    <div className="w-full mt-3 space-y-2">
+                      <div className="flex items-center justify-between pl-1">
+                        <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                          {t(translations.calendar.notesTitle, lang)}
+                        </span>
+                        {!isEditingNote && dayNote && (
+                          <button
+                            onClick={() => {
+                              setNoteInput(dayNote);
+                              setIsEditingNote(true);
+                            }}
+                            className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 px-2 py-1 rounded-lg border border-primary/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                          >
+                            {t(translations.calendar.editNoteBtn, lang)}
+                          </button>
+                        )}
+                      </div>
+
+                      {isEditingNote ? (
+                        <div className="space-y-2">
+                          <Textarea
+                            value={noteInput}
+                            onChange={(e) => setNoteInput(e.target.value)}
+                            placeholder={t(translations.calendar.notePlaceholder, lang)}
+                            className="min-h-[85px] rounded-2xl border-[3px] border-border bg-card text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-offset-0 focus-visible:border-primary resize-none text-sm font-medium transition-all"
+                          />
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setIsEditingNote(false)}
+                              className="px-3 py-1.5 rounded-xl text-xs font-bold border-2 border-border text-foreground bg-card hover:bg-muted/10 transition-all active:scale-[0.98]"
+                            >
+                              {t(translations.calendar.cancelBtn, lang)}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleSaveNote}
+                              disabled={isSavingNote}
+                              className="px-4 py-1.5 rounded-xl text-xs font-bold bg-primary border-2 border-border text-primary-foreground hover:opacity-90 transition-all active:scale-[0.98] flex items-center gap-1.5"
+                            >
+                              {isSavingNote ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                t(translations.calendar.saveNoteBtn, lang)
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      ) : dayNote ? (
+                        <div className="bg-primary/5 border-[3px] border-border border-dashed rounded-2xl p-4">
+                          <p className="text-sm text-foreground font-medium leading-relaxed italic text-center">
+                            &ldquo;{dayNote}&rdquo;
+                          </p>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setNoteInput("");
+                            setIsEditingNote(true);
+                          }}
+                          className="w-full py-3 rounded-2xl border-[3px] border-border border-dashed text-xs font-bold text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all flex items-center justify-center gap-1"
+                        >
+                          + {t(translations.calendar.addNoteBtn, lang)}
+                        </button>
+                      )}
                     </div>
                   );
                 })()}
@@ -391,7 +512,26 @@ const CalendarPage = () => {
           </div>
         )}
       </div>
-      <MoodometerModal isOpen={isMoodometerOpen} selectedDate={selected} onClose={() => { setIsMoodometerOpen(false); loadLoggedMoods(); }} />
+      <FeedbackModal 
+        isOpen={isFeedbackOpen} 
+        selectedDate={selected} 
+        showCommentInput={false} 
+        onClose={(updatedMood) => { 
+          setIsFeedbackOpen(false); 
+          if (updatedMood !== undefined) {
+            const dateStr = format(selected, 'yyyy-MM-dd');
+            setLoggedFeedback(prev => ({
+              ...prev,
+              [dateStr]: {
+                note: prev[dateStr]?.note ?? null,
+                mood: updatedMood
+              }
+            }));
+          } else {
+            loadFeedback();
+          }
+        }} 
+      />
     </PageContainer>
   );
 };

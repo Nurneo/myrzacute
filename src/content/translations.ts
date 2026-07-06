@@ -31,16 +31,18 @@ export const translations = {
       en: 'How do you feel?',
       ru: 'Как настроение?',
     },
-    moodometer: {
-      title: { en: 'Moodometer', ru: 'Настроениеметр' },
+    feedback: {
+      title: { en: 'Feedback', ru: 'Обратная связь' },
       subtitle: { en: 'How is the lioness feeling today?', ru: 'Как себя чувствует львица сегодня?' },
       level1: { en: 'The lioness is feeling like shit', ru: 'Львица чувствует себя дерьмово' },
       level2: { en: 'The lioness is a bit tired', ru: 'Львица немного устала' },
       level3: { en: 'The lioness feels somewhat normal', ru: 'Львица чувствует себя нормально' },
       level4: { en: 'The lioness feels great', ru: 'Львица чувствует себя отлично' },
       level5: { en: 'The lioness is at peak capacity', ru: 'Львица на пике возможностей' },
-      selectBtn: { en: 'Confirm Mood', ru: 'Подтвердить настроение' },
+      selectBtn: { en: 'Send Feedback', ru: 'Отправить отзыв' },
       closeBtn: { en: 'Close', ru: 'Закрыть' },
+      messageLabel: { en: 'Write a message to me', ru: 'Напиши мне сообщение' },
+      messagePlaceholder: { en: 'Share your thoughts, feelings or write something sweet...', ru: 'Поделись мыслями, чувствами или напиши что-то милое...' },
     },
     features: {
       calendar: {
@@ -77,6 +79,12 @@ export const translations = {
       en: 'No message for this day yet, but I am still thinking of you.',
       ru: 'На этот день пока нет сообщения, но я всё равно думаю о тебе.',
     },
+    notesTitle: { en: "Lioness's Notes", ru: "Заметки львицы" },
+    addNoteBtn: { en: "Add Note", ru: "Добавить заметку" },
+    editNoteBtn: { en: "Edit", ru: "Изменить" },
+    saveNoteBtn: { en: "Save", ru: "Сохранить" },
+    cancelBtn: { en: "Cancel", ru: "Отмена" },
+    notePlaceholder: { en: "Write your thoughts, feelings or memories about this day...", ru: "Напиши свои мысли, чувства или воспоминания об этом дне..." },
   },
 
   // ── Pickup Lines ─────────────────────────────────────────
@@ -131,9 +139,24 @@ export const translations = {
     wrongPasscode: { en: 'Er, wrong, try again!', ru: 'Э ты чо серьёзно? Давай ещё раз!' },
     letterClosedHint: { en: 'You have a letter. Click to open it.', ru: 'У тебя письмо. Нажми, чтобы открыть.' },
     letterOpenHeader: { en: 'My Love Letter', ru: 'Мое любовное письмо' },
+    lettersTitle: { en: 'My Love Letters', ru: 'Мои любовные письма' },
+    lettersSubtitle: { en: 'Select a letter to read 💖', ru: 'Выбери письмо для чтения 💖' },
+    letterLockedTitle: { en: 'Letter from N. N. N.', ru: 'Письмо от Н. Н. Н.' },
+    letter1UnlockedTitle: { en: 'I love you', ru: 'Я люблю тебя' },
+    letter2UnlockedTitle: { en: 'I love you SO MUCH', ru: 'Я ОЧЕНЬ сильно люблю тебя' },
+    lockLettersBtn: { en: 'Lock letters', ru: 'Заблокировать письма' },
+    letter1ClosedHint: { en: 'For her birthday 🎂', ru: 'На её день рождения 🎂' },
+    letter2ClosedHint: { en: 'A special day 🌹', ru: 'Особый день 🌹' },
+    letter1Question: { en: 'Do YOU 🫵 love me?', ru: 'А ты МЕНЯ 🫵 любишь?' },
+    letter2Question: { en: 'Can I be YOURS, and you MINE?', ru: 'Могу я быть ТВОИМ, а ты МОЕЙ?' },
+    dateQuestion: { en: 'Will you date me? 🥺👉👈', ru: 'Давай встречаться? 🥺👉👈' },
     letterBody: {
       en: "My dear,\n\nFor years I have walked this Earth thinking that 'Destiny' does not exist. It, in fact, does exist. I was fully convinced in it when I met you.\n\nWhat are the odds that all these tiny coincidences would bring us together? I would go as far as to say that WE are a match made in heaven)\n\nLook, if there is one gift I could give you, then I would give you the ability to see yourself from my eyes. So that you could see how truly gorgeous you are. So that you could see the full extent of your own beauty. I can never give you this gift fully, but I hope, some day, I will make you understand how much I adore you. Maybe through my words, or maybe through my actions. But one day, I will make you understand just how much I love you.\n\nMyrzagul, I love you.",
       ru: "Моя дорогая львица,\n\nТо, что мы вместе - чудо. Каковы шансы того что мы вместе сядем на НЦТ, или что наш ОРТ будет в одной школе, или что мы вообще найдем общий язык?\n\nЧто я хочу этим сказать - это судьба. Как бы кринжово не было, но это факт. И я бесконечно рад тому что все эти случайности позволили мне быть с тобой, ведь ты - лучшая девушка на свете. Абсолютная львица, тигрица, красавица и умница. Невероятно крутая особа которую я очень уважаю. Умная и смышленная девушка, чья красота уступает лишь её милоте)\n\nКогда ты смотришь на меня - я теряюсь с твоих глазах и это не шутка(ты сама это видела). Когда ты улыбаешься, я невольно расслабляюсь и будто на душе становится легче)\n\nМырзагүл, я люблю тебя. "
+    },
+    letter2Body: {
+      en: "Moya lubof,\n\nLife is yours, death is mine\nPeace is yours, stress is mine\nHappiness is yours, sorrow is mine\nEverything is yours\nBut you are mine\n\nBaby, I love you and I would like to ask you this question:",
+      ru: "Май лав,\n\nЖизнь твоя, смерть моя\nПокой твой, стресс мой\nСчастье твоё, грусть моя\nВсё твоё\nНо ты моя\n\nМилая, я люблю тебя и хочу задать тебе этот вопрос:"
     }
   },
 } as const;

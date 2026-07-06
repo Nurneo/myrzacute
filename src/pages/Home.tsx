@@ -12,7 +12,8 @@ import { useLang } from '@/context/LanguageContext';
 import { translations, t } from '@/content/translations';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
-import MoodometerModal from '@/components/MoodometerModal';
+import FeedbackModal from '@/components/FeedbackModal';
+import { fetchFeedback } from '@/utils/feedbackStorage';
 
 // Weighted word pool — львица is dominant
 const WORDS_RU = [
@@ -61,20 +62,22 @@ const Home = () => {
   const { lang, setLang } = useLang();
   const { theme, setTheme } = useTheme();
 
-  // Listen to keystrokes to redirect on 260626 passcode
+  // Listen to keystrokes to redirect on passcode
   useEffect(() => {
     let keysPressed = '';
-    const targetPasscode = '260626';
+    const PASSCODE_1 = '260626';
+    const PASSCODE_2 = '070726';
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key >= '0' && e.key <= '9') {
         keysPressed += e.key;
-        if (keysPressed.length > targetPasscode.length) {
-          keysPressed = keysPressed.slice(-targetPasscode.length);
+        if (keysPressed.length > 6) {
+          keysPressed = keysPressed.slice(-6);
         }
-        if (keysPressed === targetPasscode) {
-          localStorage.setItem('secret_unlocked', 'true');
-          navigate('/secret');
+        if (keysPressed === PASSCODE_1) {
+          navigate('/secret', { state: { unlockLetterId: 1 } });
+        } else if (keysPressed === PASSCODE_2) {
+          navigate('/secret', { state: { unlockLetterId: 2 } });
         }
       } else {
         keysPressed = '';
@@ -88,19 +91,24 @@ const Home = () => {
   const trSettings = translations.settings;
   const isDark = theme === 'dark';
 
-  const [isMoodometerOpen, setIsMoodometerOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
   const [moodImgError, setMoodImgError] = useState(false);
 
   useEffect(() => {
-    const todayStr = format(new Date(), 'yyyy-MM-dd');
-    const saved = localStorage.getItem(`lioness-mood-${todayStr}`);
-    if (saved) {
-      setSelectedMood(Number(saved));
-    } else {
-      setSelectedMood(null);
-    }
-  }, [isMoodometerOpen]);
+    let active = true;
+    const loadHomeMood = async () => {
+      const todayStr = format(new Date(), 'yyyy-MM-dd');
+      const data = await fetchFeedback(todayStr);
+      if (active) {
+        setSelectedMood(data.mood);
+      }
+    };
+    loadHomeMood();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     setMoodImgError(false);
@@ -201,12 +209,12 @@ const Home = () => {
           <p className="text-muted-foreground text-sm mt-1">{t(tr.exploreSubtitle, lang)}</p>
         </div>
         <button
-          onClick={() => setIsMoodometerOpen(true)}
+          onClick={() => setIsFeedbackOpen(true)}
           className={cn(
             "w-12 h-12 rounded-2xl bg-card border-[3px] border-border text-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm hover:bg-primary/10",
             selectedMood && "bg-primary text-primary-foreground border-primary"
           )}
-          title={lang === 'ru' ? 'Настроениеметр' : 'Moodometer'}
+          title={t(translations.home.feedback.title, lang)}
         >
           {selectedMood ? (
             moodImgError ? (
@@ -328,7 +336,15 @@ const Home = () => {
         </div>
       </div>
 
-      <MoodometerModal isOpen={isMoodometerOpen} onClose={() => setIsMoodometerOpen(false)} />
+      <FeedbackModal 
+        isOpen={isFeedbackOpen} 
+        onClose={(updatedMood) => {
+          setIsFeedbackOpen(false);
+          if (updatedMood !== undefined) {
+            setSelectedMood(updatedMood);
+          }
+        }} 
+      />
     </PageContainer>
   );
 };

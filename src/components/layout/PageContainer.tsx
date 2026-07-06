@@ -23,8 +23,11 @@ const PageContainer = ({ children, className = "", useWallpaper = false, disable
     ? "url('/wallpapers/wallpaper-dark.webp')"
     : "url('/wallpapers/wallpaper-light.webp')";
 
+  const isSecret = location.pathname === '/secret';
+  const showBackButton = !isHome && !isSecret;
+
   return (
-    <div className="min-h-screen flex flex-col bg-transparent relative overflow-x-hidden">
+    <div className="min-h-dvh flex flex-col bg-transparent relative overflow-x-hidden">
       {/* Custom Wallpaper Background */}
       {useWallpaper && (
         <div 
@@ -48,7 +51,7 @@ const PageContainer = ({ children, className = "", useWallpaper = false, disable
       {/* Persistent Glass Hearts Background Layer */}
       <GlassHeartsBackground />
 
-      {!isHome && (
+      {showBackButton && (
         <div className="w-full max-w-md mx-auto px-6 pt-6 relative z-50">
           <Link 
             to="/"

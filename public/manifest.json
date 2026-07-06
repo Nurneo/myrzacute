@@ -1,7 +1,7 @@
 {
   "name": "Myrzacute",
   "short_name": "Myrzacute",
-  "description": "Daily Vows, Calendar, and moodometer companion app",
+  "description": "Daily Vows, Calendar, and feedback companion app",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#4c9db0",

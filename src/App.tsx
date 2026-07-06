@@ -44,7 +44,7 @@ const AppContent = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-transparent flex flex-col relative overflow-hidden">
+    <div className="min-h-dvh bg-transparent flex flex-col relative overflow-hidden">
       {isLoading && <Loading isExitingText={isExitingText} isExitingBg={isExitingBg} />}
 
       <div
