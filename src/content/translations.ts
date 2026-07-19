@@ -57,10 +57,22 @@ export const translations = {
         title: { en: 'Roast Mode', ru: 'Режим булинга' },
         description: { en: 'Because I love teasing you)', ru: 'Потому что я люблю тебя дразнить)' },
       },
+      importantDates: {
+        title: { en: 'Important Dates', ru: 'Важные даты' },
+        description: { en: 'The timeline of our milestones', ru: 'Хронология наших вех' },
+      },
       settings: {
         title: { en: 'Settings', ru: 'Настройки' },
         description: { en: 'Customize the app', ru: 'Настрой приложение под себя' },
       },
+    },
+    dayCounter: {
+      title: { en: 'Our Love Story', ru: 'Наша история любви' },
+      subtitle: { en: 'We have been together for:', ru: 'Мы вместе уже:' },
+      days: { en: 'Days', ru: 'Дней' },
+      hours: { en: 'Hours', ru: 'Часов' },
+      minutes: { en: 'Mins', ru: 'Минут' },
+      seconds: { en: 'Secs', ru: 'Секунд' }
     },
   },
 

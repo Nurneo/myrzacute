@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import PageContainer from '@/components/layout/PageContainer';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Heart, Flame, Quote, Sun, Moon, Globe } from 'lucide-react';
+import { Calendar, Heart, Flame, Quote, Sun, Moon, Globe, Sparkles } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { dailyMessages } from '@/content/dailyMessages';
 import { format } from 'date-fns';
@@ -95,6 +95,32 @@ const Home = () => {
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
   const [moodImgError, setMoodImgError] = useState(false);
 
+  const [timeDiff, setTimeDiff] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const START_DATE = new Date("2026-07-07T23:30:00");
+    const calculateDiff = () => {
+      const now = new Date();
+      const diffMs = now.getTime() - START_DATE.getTime();
+      
+      if (diffMs < 0) {
+        setTimeDiff({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+
+      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+      setTimeDiff({ days, hours, minutes, seconds });
+    };
+
+    calculateDiff();
+    const timer = setInterval(calculateDiff, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   useEffect(() => {
     let active = true;
     const loadHomeMood = async () => {
@@ -156,6 +182,13 @@ const Home = () => {
       color: "bg-orange-100 text-orange-500",
       path: "/roasts",
     },
+    {
+      title: t(tr.features.importantDates.title, lang),
+      description: t(tr.features.importantDates.description, lang),
+      icon: Sparkles,
+      color: "bg-yellow-100 text-yellow-500 dark:bg-yellow-500/10 dark:text-yellow-400",
+      path: "/important-dates",
+    },
   ];
 
   return (
@@ -183,9 +216,69 @@ const Home = () => {
         </Link>
       </header>
 
+      {/* ── Day Counter Card ── */}
+      <div 
+        className="mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
+        style={{ animationDelay: '150ms', animationFillMode: 'both' }}
+      >
+        <Card className="border-[3px] border-border bg-gradient-to-br from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10 shadow-md hover:shadow-lg transition-all rounded-3xl overflow-hidden relative group">
+          <div className="absolute top-4 right-4 text-red-500/20 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300 pointer-events-none">
+            <Heart size={80} className="fill-red-500/10" />
+          </div>
+          
+          <CardContent className="p-6 sm:p-8 flex flex-col items-center text-center">
+            <span className="inline-flex items-center justify-center p-2.5 rounded-2xl bg-red-500/10 text-red-500 mb-3 animate-pulse">
+              <Heart size={24} className="fill-red-500" />
+            </span>
+            <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-1">
+              {t(tr.dayCounter.title, lang)}
+            </p>
+            <h2 className="text-sm font-bold text-foreground opacity-80 mb-3">
+              {t(tr.dayCounter.subtitle, lang)}
+            </h2>
+            
+            {/* Live Ticker Grid */}
+            <div className="grid grid-cols-4 gap-2 sm:gap-4 max-w-sm w-full mt-2">
+              <div className="flex flex-col items-center p-2 rounded-2xl bg-card border-[3px] border-border shadow-sm">
+                <span className="text-xl sm:text-2xl font-black text-primary leading-tight">
+                  {timeDiff.days}
+                </span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">
+                  {t(tr.dayCounter.days, lang)}
+                </span>
+              </div>
+              <div className="flex flex-col items-center p-2 rounded-2xl bg-card border-[3px] border-border shadow-sm">
+                <span className="text-xl sm:text-2xl font-black text-foreground leading-tight">
+                  {String(timeDiff.hours).padStart(2, '0')}
+                </span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">
+                  {t(tr.dayCounter.hours, lang)}
+                </span>
+              </div>
+              <div className="flex flex-col items-center p-2 rounded-2xl bg-card border-[3px] border-border shadow-sm">
+                <span className="text-xl sm:text-2xl font-black text-foreground leading-tight">
+                  {String(timeDiff.minutes).padStart(2, '0')}
+                </span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">
+                  {t(tr.dayCounter.minutes, lang)}
+                </span>
+              </div>
+              <div className="flex flex-col items-center p-2 rounded-2xl bg-card border-[3px] border-border shadow-sm">
+                <span className="text-xl sm:text-2xl font-black text-foreground leading-tight">
+                  {String(timeDiff.seconds).padStart(2, '0')}
+                </span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">
+                  {t(tr.dayCounter.seconds, lang)}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <div 
         className="mb-10 relative animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
-        style={{ animationDelay: '150ms', animationFillMode: 'both' }}
+        style={{ animationDelay: '300ms', animationFillMode: 'both' }}
       >
         <div className="absolute -top-4 -left-2 opacity-10 text-primary">
           <Quote size={48} fill="currentColor" />
@@ -202,7 +295,7 @@ const Home = () => {
 
       <div 
         className="flex items-center justify-between mb-6 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
-        style={{ animationDelay: '300ms', animationFillMode: 'both' }}
+        style={{ animationDelay: '450ms', animationFillMode: 'both' }}
       >
         <div>
           <h2 className="text-2xl font-bold text-foreground tracking-tight">{t(tr.exploreTitle, lang)}</h2>
@@ -242,7 +335,7 @@ const Home = () => {
             to={feature.path}
             className="animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
             style={{
-              animationDelay: `${400 + index * 100}ms`,
+              animationDelay: `${600 + index * 100}ms`,
               animationFillMode: 'both',
             }}
           >
@@ -264,7 +357,7 @@ const Home = () => {
       {/* Theme + Language toggles */}
       <div 
         className="mt-10 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
-        style={{ animationDelay: '700ms', animationFillMode: 'both' }}
+        style={{ animationDelay: '1100ms', animationFillMode: 'both' }}
       >
         {/* Theme toggle */}
         <div className="flex items-center justify-between p-6 rounded-3xl border-[3px] border-border bg-card shadow-sm hover:shadow-[0_0_15px_rgba(255,235,175,0.06)] transition-all duration-300">
