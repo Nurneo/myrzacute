@@ -50,33 +50,38 @@ export async function requestNotificationPermission(): Promise<boolean> {
   }
 }
 
-export async function showNativeNotification(title: string, body: string, icon = '💖'): Promise<void> {
-  if (!isNotificationSupported()) return;
+export async function showNativeNotification(title: string, body: string, icon = '💖'): Promise<boolean> {
+  if (!isNotificationSupported()) return false;
 
   // Auto request permission if default
   if (Notification.permission === 'default') {
     try {
-      await Notification.requestPermission();
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') return false;
     } catch {
-      // ignore
+      return false;
     }
   }
 
-  if (Notification.permission !== 'granted') return;
+  if (Notification.permission !== 'granted') return false;
 
   // 1. Try Service Worker registration showNotification (Required for iOS Safari / Android PWA)
   try {
     if ('serviceWorker' in navigator) {
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 500)),
+      ]);
+
       if (reg && reg.showNotification) {
         await reg.showNotification(title, {
           body,
           icon: '/favicon.ico',
           badge: '/favicon.ico',
-          tag: 'myrzacute-love-note',
+          tag: `myrzacute-${Date.now()}`,
           vibrate: [200, 100, 200, 100, 200],
         } as NotificationOptions);
-        return;
+        return true;
       }
     }
   } catch (err) {
@@ -89,10 +94,12 @@ export async function showNativeNotification(title: string, body: string, icon =
       body,
       icon: '/favicon.ico',
       badge: '/favicon.ico',
-      tag: 'myrzacute-love-note',
+      tag: `myrzacute-${Date.now()}`,
     });
+    return true;
   } catch (e) {
     console.warn('Native notification fallback failed:', e);
+    return false;
   }
 }
 

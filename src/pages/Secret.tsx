@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import PageContainer from '@/components/layout/PageContainer';
 import { useLang } from '@/context/LanguageContext';
 import { translations, t } from '@/content/translations';
-import { Heart, Lock, Delete, ArrowLeft } from 'lucide-react';
+import { Heart, Lock, Delete, ArrowLeft, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 import FallingItems from '@/components/FallingItems';
 import HeartExplosion from '@/components/HeartExplosion';
@@ -16,6 +16,11 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useNotificationContext } from '@/components/NotificationManager';
+import {
+  isNotificationSupported,
+  requestNotificationPermission,
+  showNativeNotification,
+} from '@/utils/notifications';
 
 const PASSCODE_1 = "260626";
 const PASSCODE_2 = "070726";
@@ -81,6 +86,39 @@ const SecretPage = () => {
   const tr = translations.secret;
 
   const location = useLocation();
+
+  const handleBellClick = async () => {
+    if (!isNotificationSupported()) {
+      toast.error(
+        lang === 'ru'
+          ? 'Ваше устройство не поддерживает веб-уведомления ❌'
+          : 'Your device does not support web notifications ❌'
+      );
+      return;
+    }
+
+    const granted = await requestNotificationPermission();
+    if (granted) {
+      toast.success(
+        lang === 'ru'
+          ? 'Разрешение получено! Отправка уведомления... 🔔'
+          : 'Permission granted! Sending notification... 🔔'
+      );
+      triggerNotification();
+      await showNativeNotification(
+        lang === 'ru' ? 'Тестовое уведомление 💖' : 'Test Notification 💖',
+        lang === 'ru'
+          ? 'Уведомления успешно включены и работают на твоем устройстве! 🦁✨'
+          : 'Notifications enabled and working on your device! 🦁✨'
+      );
+    } else {
+      toast.error(
+        lang === 'ru'
+          ? 'Уведомления заблокированы! Разрешите их в настройках браузера 🚫'
+          : 'Notifications blocked! Please enable them in browser settings 🚫'
+      );
+    }
+  };
 
   // Unlocked states for each letter
   const [isUnlocked1, setIsUnlocked1] = useState(false);
@@ -304,7 +342,14 @@ const SecretPage = () => {
                   {t(tr.lettersSubtitle, lang)}
                 </p>
               </div>
-              <div className="w-10 h-10" />
+
+              <button
+                onClick={handleBellClick}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-card border-[3px] border-border shadow-sm hover:bg-primary/10 transition-all active:scale-90 text-primary"
+                title={lang === 'ru' ? 'Включить и проверить уведомления 🔔' : 'Enable & test notifications 🔔'}
+              >
+                <Bell size={20} />
+              </button>
             </div>
 
             {/* Selection Grid (Always shows Sealed envelopes initially) */}
@@ -373,7 +418,13 @@ const SecretPage = () => {
                 <ArrowLeft size={20} className="text-primary dark:text-foreground" />
               </button>
               
-              <div className="w-10 h-10" />
+              <button
+                onClick={handleBellClick}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-white dark:bg-card border-[3px] border-border shadow-sm hover:bg-primary/10 transition-all active:scale-90 text-primary"
+                title={lang === 'ru' ? 'Включить и проверить уведомления 🔔' : 'Enable & test notifications 🔔'}
+              >
+                <Bell size={20} />
+              </button>
             </div>
 
             {/* Letter Envelope Area */}
