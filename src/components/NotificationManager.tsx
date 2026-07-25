@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, createContext, useContext } fr
 import { useLang } from '@/context/LanguageContext';
 import { getNotificationMessage } from '@/content/notificationMessages';
 import { translations, t } from '@/content/translations';
-import { sendTelegramNotification } from '@/utils/telegram';
 import {
   getCurrentSlotInfo,
   getLastNotifiedSlot,
@@ -58,7 +57,7 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
         read: false,
       });
 
-      // Send browser native alert
+      // Send browser / mobile native system alert
       showNativeNotification(title, message, icon);
 
       // Pop in-app cute modal
@@ -69,10 +68,6 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
         message,
         icon,
       });
-
-      // Send to Telegram!
-      const tgText = `<b>${title}</b>\n\n${message}`;
-      sendTelegramNotification(tgText);
     },
     [lang]
   );
@@ -108,10 +103,6 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
         message: content.message,
         icon: content.icon,
       });
-
-      // Send to Telegram as well
-      const tgText = `<b>${content.title}</b>\n\n${content.message}`;
-      sendTelegramNotification(tgText);
     }
   }, [lang]);
 

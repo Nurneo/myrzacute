@@ -50,8 +50,40 @@ export async function requestNotificationPermission(): Promise<boolean> {
   }
 }
 
-export function showNativeNotification(title: string, body: string, icon = '💖'): void {
-  if (!isNotificationSupported() || Notification.permission !== 'granted') return;
+export async function showNativeNotification(title: string, body: string, icon = '💖'): Promise<void> {
+  if (!isNotificationSupported()) return;
+
+  // Auto request permission if default
+  if (Notification.permission === 'default') {
+    try {
+      await Notification.requestPermission();
+    } catch {
+      // ignore
+    }
+  }
+
+  if (Notification.permission !== 'granted') return;
+
+  // 1. Try Service Worker registration showNotification (Required for iOS Safari / Android PWA)
+  try {
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.ready;
+      if (reg && reg.showNotification) {
+        await reg.showNotification(title, {
+          body,
+          icon: '/favicon.ico',
+          badge: '/favicon.ico',
+          tag: 'myrzacute-love-note',
+          vibrate: [200, 100, 200, 100, 200],
+        } as NotificationOptions);
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn('Service worker showNotification failed:', err);
+  }
+
+  // 2. Fallback for Desktop browsers supporting classic constructor
   try {
     new Notification(title, {
       body,
@@ -60,7 +92,7 @@ export function showNativeNotification(title: string, body: string, icon = '💖
       tag: 'myrzacute-love-note',
     });
   } catch (e) {
-    console.warn('Native notification fallback:', e);
+    console.warn('Native notification fallback failed:', e);
   }
 }
 

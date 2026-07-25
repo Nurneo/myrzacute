@@ -1,4 +1,4 @@
-const CACHE_NAME = 'myrzacute-v3';
+const CACHE_NAME = 'myrzacute-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -34,14 +34,12 @@ self.addEventListener('activate', (event) => {
 
 // Fetch Event - Optimized Caching Strategy for Mobile
 self.addEventListener('fetch', (event) => {
-  // Only handle HTTP/HTTPS (ignore extension schemes, etc.)
   if (!event.request.url.startsWith('http')) return;
 
   const url = new URL(event.request.url);
   const isHtml = event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/';
 
   if (isHtml) {
-    // Network First for HTML/navigation documents to guarantee daily message updates when online
     event.respondWith(
       fetch(event.request)
         .then((response) => {
@@ -58,7 +56,6 @@ self.addEventListener('fetch', (event) => {
         })
     );
   } else {
-    // Cache First with background revalidation for static resources (JS, CSS, images, fonts)
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         const fetchPromise = fetch(event.request).then((networkResponse) => {
@@ -71,9 +68,25 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         });
 
-        // Return the cached response instantly if available, while updating the cache in the background
         return cachedResponse || fetchPromise;
       })
     );
   }
+});
+
+// Notification Click Event handler for mobile PWAs
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (let client of clientList) {
+        if (client.url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow('/');
+      }
+    })
+  );
 });
