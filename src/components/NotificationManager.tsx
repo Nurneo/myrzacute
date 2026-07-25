@@ -70,10 +70,10 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
         read: false,
       });
 
-      // Send browser / mobile native system alert
+      // Send browser / mobile native system alert ONCE
       showNativeNotification(title, message, icon);
 
-      // Pop in-app cute modal
+      // Pop in-app cute modal ONCE
       setActiveModal({
         isOpen: true,
         type: modalType,
@@ -89,6 +89,19 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
     if (!getNotificationsEnabled()) return;
 
     const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+
+    // STRICT CHECK: Only trigger if the current time is EXACTLY within the 5-minute window of 00:00 or 12:00
+    // Midnight: 00:00:00 - 00:04:59
+    // Midday:   12:00:00 - 12:04:59
+    const isMidnightTime = hours === 0 && minutes < 5;
+    const isMiddayTime = hours === 12 && minutes < 5;
+
+    if (!isMidnightTime && !isMiddayTime) {
+      return; // Do NOT fire if outside 00:00 - 00:05 or 12:00 - 12:05
+    }
+
     const { slotKey, type, dateStr } = getCurrentSlotInfo(now);
     const lastNotified = getLastNotifiedSlot();
 

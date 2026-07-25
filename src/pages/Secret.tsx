@@ -115,7 +115,6 @@ const SecretPage = () => {
           : `Secret notification #${idx + 1} sent! 🔔`
       );
       triggerNotification(content.title, content.message, content.icon, 'secret', idx);
-      await showNativeNotification(content.title, content.message, content.icon);
     } else {
       toast.error(
         lang === 'ru'
@@ -269,7 +268,6 @@ const SecretPage = () => {
               : `Secret notification #${idx + 1} sent! 💖`
           );
           triggerNotification(content.title, content.message, content.icon, 'secret', idx);
-          showNativeNotification(content.title, content.message, content.icon);
           setTimeout(() => {
             setActivePasscodeLetter(null);
             setPasscode("");
