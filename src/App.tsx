@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect, lazy, Suspense } from "react";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { NotificationManager } from "@/components/NotificationManager";
 
 const Home = lazy(() => import("./pages/Home"));
 const CalendarPage = lazy(() => import("./pages/Calendar"));
@@ -101,13 +102,15 @@ const AppContent = () => {
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light">
     <LanguageProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
-      </TooltipProvider>
+      <NotificationManager>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppContent />
+          </BrowserRouter>
+        </TooltipProvider>
+      </NotificationManager>
     </LanguageProvider>
   </ThemeProvider>
 );

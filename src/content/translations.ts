@@ -137,6 +137,30 @@ export const translations = {
     englishSub: { en: 'Default language', ru: 'Язык по умолчанию' },
     russianLabel: { en: 'Russian', ru: 'Русский' },
     russianSub: { en: 'Russian language', ru: 'Русский язык' },
+    notificationsLabel: { en: 'Notifications', ru: 'Уведомления' },
+    notificationsSub: { en: 'Daily 00:00 & 12:00 messages', ru: 'Сообщения в 00:00 и 12:00' },
+  },
+
+  // ── Notifications ─────────────────────────────────────────
+  notifications: {
+    title: { en: 'Cute Notifications', ru: 'Милые уведомления' },
+    subtitle: { en: 'Love notes delivered at 00:00 & 12:00', ru: 'Записки любви в 00:00 и 12:00' },
+    nextNotification: { en: 'Next cute message in:', ru: 'Следующее милое сообщение через:' },
+    midnightLabel: { en: 'Midnight Kiss (00:00)', ru: 'Полночный поцелуй (00:00)' },
+    middayLabel: { en: 'Midday Sunshine (12:00)', ru: 'Полуденное солнце (12:00)' },
+    enablePush: { en: 'Enable Web Notifications', ru: 'Включить веб-уведомления' },
+    pushEnabled: { en: 'Push notifications active 🔔', ru: 'Веб-уведомления включены 🔔' },
+    pushDenied: { en: 'Notification permission blocked in browser settings', ru: 'Уведомления заблокированы в настройках браузера' },
+    testBtn: { en: 'Send Test Notification 🚀', ru: 'Отправить тестовое 🚀' },
+    sendKissBtn: { en: 'Send Kiss Back 💋', ru: 'Отправить поцелуй ответ 💋' },
+    closeBtn: { en: 'Thank You! 💖', ru: 'Спасибо! 💖' },
+    historyTitle: { en: 'Recent Love Notes', ru: 'История записок' },
+    noHistory: { en: 'No notes received yet! Waiting for 00:00 or 12:00 ⏳', ru: 'Записок пока нет! Ждём 00:00 или 12:00 ⏳' },
+    testTitle: { en: 'Cute Test Notification 💖✨', ru: 'Тестовое милое уведомление 💖✨' },
+    testMessage: {
+      en: 'This is how your 00:00 and 12:00 cute notifications will look! You are the absolute best lioness 🦁💕',
+      ru: 'Вот так будут выглядеть твои милые сообщения в 00:00 и 12:00! Ты самая лучшая львица на свете 🦁💕',
+    },
   },
 
   // ── NotFound ─────────────────────────────────────────────

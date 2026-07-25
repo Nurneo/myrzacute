@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { useNotificationContext } from '@/components/NotificationManager';
 
 const PASSCODE_1 = "260626";
 const PASSCODE_2 = "070726";
@@ -76,6 +77,7 @@ const UnsealedEnvelope = ({ title }: { title: string }) => (
 const SecretPage = () => {
   const navigate = useNavigate();
   const { lang } = useLang();
+  const { triggerNotification } = useNotificationContext();
   const tr = translations.secret;
 
   const location = useLocation();
@@ -214,6 +216,13 @@ const SecretPage = () => {
             setActivePasscodeLetter(null);
             setPasscode("");
             setShowExplosion(true);
+          }, 400);
+        } else if (activePasscodeLetter === 1 && nextPasscode === "000000") {
+          toast.success(lang === 'ru' ? 'Секретное уведомление отправлено! 💖' : 'Secret notification sent! 💖');
+          triggerNotification();
+          setTimeout(() => {
+            setActivePasscodeLetter(null);
+            setPasscode("");
           }, 400);
         } else {
           setShake(true);
