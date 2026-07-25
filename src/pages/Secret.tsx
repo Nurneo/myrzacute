@@ -21,6 +21,7 @@ import {
   requestNotificationPermission,
   showNativeNotification,
 } from '@/utils/notifications';
+import { getNotificationMessage } from '@/content/notificationMessages';
 
 const PASSCODE_1 = "260626";
 const PASSCODE_2 = "070726";
@@ -87,6 +88,13 @@ const SecretPage = () => {
 
   const location = useLocation();
 
+  const getNextPasscodeIndex = (): number => {
+    const current = parseInt(localStorage.getItem('myrzacute_secret_notif_index') || '0', 10);
+    const next = (current + 1) % 8;
+    localStorage.setItem('myrzacute_secret_notif_index', String(next));
+    return current;
+  };
+
   const handleBellClick = async () => {
     if (!isNotificationSupported()) {
       toast.error(
@@ -99,18 +107,15 @@ const SecretPage = () => {
 
     const granted = await requestNotificationPermission();
     if (granted) {
+      const idx = getNextPasscodeIndex();
+      const content = getNotificationMessage('secret', undefined, lang, idx);
       toast.success(
         lang === 'ru'
-          ? 'Разрешение получено! Отправка уведомления... 🔔'
-          : 'Permission granted! Sending notification... 🔔'
+          ? `Секретное уведомление #${idx + 1} отправлено! 🔔`
+          : `Secret notification #${idx + 1} sent! 🔔`
       );
-      triggerNotification();
-      await showNativeNotification(
-        lang === 'ru' ? 'Тестовое уведомление 💖' : 'Test Notification 💖',
-        lang === 'ru'
-          ? 'Уведомления успешно включены и работают на твоем устройстве! 🦁✨'
-          : 'Notifications enabled and working on your device! 🦁✨'
-      );
+      triggerNotification(content.title, content.message, content.icon, 'secret', idx);
+      await showNativeNotification(content.title, content.message, content.icon);
     } else {
       toast.error(
         lang === 'ru'
@@ -256,8 +261,15 @@ const SecretPage = () => {
             setShowExplosion(true);
           }, 400);
         } else if (activePasscodeLetter === 1 && nextPasscode === "000000") {
-          toast.success(lang === 'ru' ? 'Секретное уведомление отправлено! 💖' : 'Secret notification sent! 💖');
-          triggerNotification();
+          const idx = getNextPasscodeIndex();
+          const content = getNotificationMessage('secret', undefined, lang, idx);
+          toast.success(
+            lang === 'ru'
+              ? `Секретное уведомление #${idx + 1} отправлено! 💖`
+              : `Secret notification #${idx + 1} sent! 💖`
+          );
+          triggerNotification(content.title, content.message, content.icon, 'secret', idx);
+          showNativeNotification(content.title, content.message, content.icon);
           setTimeout(() => {
             setActivePasscodeLetter(null);
             setPasscode("");

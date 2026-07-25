@@ -13,7 +13,13 @@ import {
 import CuteNotificationModal from './CuteNotificationModal';
 
 interface NotificationContextType {
-  triggerNotification: (title?: string, message?: string, icon?: string, type?: 'midnight' | 'midday') => void;
+  triggerNotification: (
+    title?: string,
+    message?: string,
+    icon?: string,
+    type?: 'midnight' | 'midday' | 'secret',
+    explicitIndex?: number
+  ) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType>({
@@ -35,21 +41,28 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
   } | null>(null);
 
   const triggerNotification = useCallback(
-    (customTitle?: string, customMessage?: string, customIcon?: string, customType?: 'midnight' | 'midday') => {
+    (
+      customTitle?: string,
+      customMessage?: string,
+      customIcon?: string,
+      customType?: 'midnight' | 'midday' | 'secret',
+      explicitIndex?: number
+    ) => {
       const now = new Date();
       const slotInfo = getCurrentSlotInfo(now);
-      const content = getNotificationMessage(slotInfo.type, slotInfo.dateStr, lang);
+      const type = customType || slotInfo.type;
+      const content = getNotificationMessage(type, slotInfo.dateStr, lang, explicitIndex);
 
       const title = customTitle || content.title;
       const message = customMessage || content.message;
       const icon = customIcon || content.icon;
-      const type = customType || slotInfo.type;
+      const modalType: 'midnight' | 'midday' = type === 'midnight' ? 'midnight' : 'midday';
 
       // Add to history
       addNotificationToHistory({
         id: `notif_${Date.now()}`,
         slotKey: `slot_${Date.now()}`,
-        type,
+        type: modalType,
         title,
         message,
         icon,
@@ -63,7 +76,7 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
       // Pop in-app cute modal
       setActiveModal({
         isOpen: true,
-        type,
+        type: modalType,
         title,
         message,
         icon,
