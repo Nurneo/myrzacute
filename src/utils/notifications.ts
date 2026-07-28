@@ -1,4 +1,5 @@
 import { format, addDays } from 'date-fns';
+import { sendTelegramNotification } from './telegram';
 
 const STORAGE_KEY_ENABLED = 'myrzacute_notifications_enabled';
 const STORAGE_KEY_HISTORY = 'myrzacute_notification_history';
@@ -51,18 +52,15 @@ export async function requestNotificationPermission(): Promise<boolean> {
 }
 
 export async function showNativeNotification(title: string, body: string, icon = '💖'): Promise<boolean> {
+  // Always attempt Telegram notification push so user gets notified on phone even if browser is closed/blocked
+  sendTelegramNotification(`${icon} <b>${title}</b>\n\n${body}`).catch((err) => {
+    console.warn('Telegram notification push failed:', err);
+  });
+
   if (!isNotificationSupported()) return false;
 
-  // Auto request permission if default
-  if (Notification.permission === 'default') {
-    try {
-      const perm = await Notification.requestPermission();
-      if (perm !== 'granted') return false;
-    } catch {
-      return false;
-    }
-  }
-
+  // Do NOT auto-request permission here as background timers will trigger browser security blocks.
+  // Native notifications will only fire if permission is already granted by user interaction.
   if (Notification.permission !== 'granted') return false;
 
   // 1. Try Service Worker registration showNotification (Required for iOS Safari / Android PWA)
@@ -70,7 +68,7 @@ export async function showNativeNotification(title: string, body: string, icon =
     if ('serviceWorker' in navigator) {
       const reg = await Promise.race([
         navigator.serviceWorker.ready,
-        new Promise<null>((resolve) => setTimeout(() => resolve(null), 500)),
+        new Promise<ServiceWorkerRegistration | null>((resolve) => setTimeout(() => resolve(null), 500)),
       ]);
 
       if (reg && reg.showNotification) {
@@ -100,6 +98,22 @@ export async function showNativeNotification(title: string, body: string, icon =
   } catch (e) {
     console.warn('Native notification fallback failed:', e);
     return false;
+  }
+}
+
+export function scheduleSWBackgroundSlot(title: string, message: string, targetTimeMs: number): void {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+  try {
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SCHEDULE_OS_NOTIFICATION',
+        title,
+        message,
+        targetTimeMs,
+      });
+    }
+  } catch (err) {
+    console.warn('Failed to send background schedule message to Service Worker:', err);
   }
 }
 

@@ -259,7 +259,10 @@ const SecretPage = () => {
             setPasscode("");
             setShowExplosion(true);
           }, 400);
-        } else if (activePasscodeLetter === 1 && nextPasscode === "000000") {
+        } else if (nextPasscode === "000000") {
+          if (Notification.permission === 'default') {
+            requestNotificationPermission().catch(() => {});
+          }
           const idx = getNextPasscodeIndex();
           const content = getNotificationMessage('secret', undefined, lang, idx);
           toast.success(

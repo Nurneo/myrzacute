@@ -1,4 +1,4 @@
-const CACHE_NAME = 'myrzacute-v5';
+const CACHE_NAME = 'myrzacute-v6';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -94,7 +94,58 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// ── Background Notification Scheduler (Runs even when app is closed) ──
+// ── Web Push Event Listener (Runs when Push Server sends background push) ──
+self.addEventListener('push', (event) => {
+  let title = 'Myrzacute 💖';
+  let body = 'У вас новое милое сообщение!';
+  
+  if (event.data) {
+    try {
+      const data = event.data.json();
+      title = data.title || title;
+      body = data.body || body;
+    } catch (e) {
+      body = event.data.text() || body;
+    }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      icon: '/favicon.ico',
+      badge: '/favicon.ico',
+      tag: `myrzacute-push-${Date.now()}`,
+      vibrate: [200, 100, 200, 100, 200],
+    })
+  );
+});
+
+// ── Message Listener for OS-Level Scheduled Triggers ──
+self.addEventListener('message', (event) => {
+  if (!event.data) return;
+
+  if (event.data.type === 'SCHEDULE_OS_NOTIFICATION') {
+    const { title, message, targetTimeMs } = event.data;
+
+    // Use TimestampTrigger API if supported by browser/OS
+    if ('showNotification' in self.registration && typeof TimestampTrigger !== 'undefined') {
+      try {
+        self.registration.showNotification(title, {
+          body: message,
+          icon: '/favicon.ico',
+          badge: '/favicon.ico',
+          tag: `myrzacute-scheduled-${targetTimeMs}`,
+          showTrigger: new TimestampTrigger(targetTimeMs),
+          vibrate: [200, 100, 200, 100, 200],
+        });
+      } catch (err) {
+        console.warn('TimestampTrigger scheduling failed:', err);
+      }
+    }
+  }
+});
+
+// ── Background Notification Scheduler ──
 let bgTimer = null;
 
 function scheduleNextBackgroundNotification() {
