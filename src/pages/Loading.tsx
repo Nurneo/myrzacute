@@ -6,11 +6,10 @@ import { translations, t } from '@/content/translations';
 import { useTheme } from 'next-themes';
 
 interface LoadingProps {
-  isExitingText?: boolean;
-  isExitingBg?: boolean;
+  isExiting?: boolean;
 }
 
-const Loading = ({ isExitingText, isExitingBg }: LoadingProps) => {
+const Loading = ({ isExiting }: LoadingProps) => {
   const { lang } = useLang();
   const { theme, resolvedTheme } = useTheme();
   const isDark = theme === 'dark' || resolvedTheme === 'dark';
@@ -19,25 +18,16 @@ const Loading = ({ isExitingText, isExitingBg }: LoadingProps) => {
     <div
       className={cn(
         "fixed inset-0 flex flex-col items-center justify-center z-[100] touch-none select-none pointer-events-none transform-gpu",
-        isExitingBg ? "opacity-0" : "opacity-100"
+        isExiting ? "opacity-0 scale-95 blur-[6px]" : "opacity-100 scale-100"
       )}
       style={{
         background: isDark
           ? "linear-gradient(to bottom, #a89bf2 80%, #4c9db0 100%)"
           : "linear-gradient(to bottom, #4c9db0 80%, #a89bf2 100%)",
-        transition: 'opacity 550ms cubic-bezier(0.16, 1, 0.3, 1), filter 550ms cubic-bezier(0.16, 1, 0.3, 1)',
-        filter: isExitingBg ? 'blur(10px)' : 'none',
+        transition: 'opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1), filter 600ms cubic-bezier(0.16, 1, 0.3, 1)',
       }}
     >
-      <div 
-        className={cn(
-          "text-center space-y-5 px-6 flex flex-col items-center transform-gpu",
-          isExitingText ? "opacity-0 scale-90 blur-[4px]" : "opacity-100 scale-100"
-        )}
-        style={{
-          transition: 'opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), transform 400ms cubic-bezier(0.16, 1, 0.3, 1), filter 400ms cubic-bezier(0.16, 1, 0.3, 1)',
-        }}
-      >
+      <div className="text-center space-y-5 px-6 flex flex-col items-center transform-gpu">
         {/* Glow Ring + Breathing Heart Centerpiece */}
         <div className="relative flex items-center justify-center w-20 h-20 mb-2">
           {/* Outer soft ambient pulse ring */}

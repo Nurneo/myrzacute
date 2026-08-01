@@ -51,39 +51,35 @@ const RouteFallback = () => (
   </div>
 );
 
-const SPLASH_VISIBLE_MS = 850;
-const SPLASH_TEXT_EXIT_MS = 250;
-const SPLASH_BG_EXIT_MS = 500;
+const SPLASH_VISIBLE_MS = 900;
+const SPLASH_CROSSFADE_MS = 600;
 
 const AppContent = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isExitingText, setIsExitingText] = useState(false);
-  const [isExitingBg, setIsExitingBg] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
-    const textTimer = setTimeout(() => setIsExitingText(true), SPLASH_VISIBLE_MS);
-    const bgTimer = setTimeout(() => setIsExitingBg(true), SPLASH_VISIBLE_MS + SPLASH_TEXT_EXIT_MS);
+    const exitTimer = setTimeout(() => setIsExiting(true), SPLASH_VISIBLE_MS);
     const removeTimer = setTimeout(
       () => setIsLoading(false),
-      SPLASH_VISIBLE_MS + SPLASH_TEXT_EXIT_MS + SPLASH_BG_EXIT_MS,
+      SPLASH_VISIBLE_MS + SPLASH_CROSSFADE_MS,
     );
     return () => {
-      clearTimeout(textTimer);
-      clearTimeout(bgTimer);
+      clearTimeout(exitTimer);
       clearTimeout(removeTimer);
     };
   }, []);
 
   return (
     <div className="min-h-dvh bg-transparent flex flex-col relative overflow-hidden">
-      {isLoading && <Loading isExitingText={isExitingText} isExitingBg={isExitingBg} />}
+      {isLoading && <Loading isExiting={isExiting} />}
 
       <div
         className="flex-1 flex flex-col transform-gpu"
         style={{
-          transition: 'opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1)',
-          opacity: isExitingBg ? 1 : 0,
-          transform: isExitingBg ? 'scale(1)' : 'scale(0.98)',
+          transition: 'opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1)',
+          opacity: isExiting ? 1 : 0,
+          transform: isExiting ? 'scale(1)' : 'scale(0.98)',
         }}
       >
         <Suspense fallback={<RouteFallback />}>
