@@ -55,13 +55,20 @@ const PageContainer = ({ children, className = "", useWallpaper = false, disable
         <div className="w-full max-w-md mx-auto px-6 pt-6 relative z-50">
           <Link 
             to="/"
-            className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-white dark:bg-card shadow-sm border-[3px] border-border hover:bg-secondary/20 transition-all active:scale-90"
+            className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-white dark:bg-card shadow-sm border-[3px] border-border"
+            style={{ transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease' }}
+            onPointerDown={(e) => (e.currentTarget.style.transform = 'scale(0.88)')}
+            onPointerUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            onPointerLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           >
             <ChevronLeft size={24} className="text-primary dark:text-foreground" />
           </Link>
         </div>
       )}
-      <main className={`flex-1 w-full max-w-md mx-auto px-6 pt-6 pb-20 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out ${className}`}>
+      <main
+        className={`flex-1 w-full max-w-md mx-auto px-6 pt-6 pb-20 relative z-10 ${className}`}
+        style={{ animation: 'fadeSlideUp 0.38s cubic-bezier(0.16, 1, 0.3, 1) both' }}
+      >
         {children}
       </main>
     </div>

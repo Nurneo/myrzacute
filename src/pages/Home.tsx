@@ -14,6 +14,7 @@ import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import FeedbackModal from '@/components/FeedbackModal';
 import { fetchFeedback } from '@/utils/feedbackStorage';
+import { toggleThemeWithRipple } from '@/utils/themeTransition';
 
 // Weighted word pool — львица is dominant
 const WORDS_RU = [
@@ -193,7 +194,12 @@ const Home = () => {
 
   return (
     <PageContainer>
+<<<<<<< Updated upstream
       <header className="mb-8 flex justify-between items-start animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
+=======
+      {/* ── Top Header with Compact Theme & Language Switches ── */}
+      <header className="mb-6 flex justify-between items-center" style={{ animation: 'fadeSlideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
+>>>>>>> Stashed changes
         <div>
           <h1 className="text-4xl font-black text-foreground tracking-tighter">MYRZACUTE</h1>
           <p className="text-muted-foreground font-medium">
@@ -207,6 +213,7 @@ const Home = () => {
             .
           </p>
         </div>
+<<<<<<< Updated upstream
         <Link
           to="/secret"
           className="w-10 h-10 rounded-2xl bg-card border-[3px] border-border flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm text-red-500 hover:bg-red-500/10"
@@ -214,12 +221,55 @@ const Home = () => {
         >
           <Heart size={20} className="fill-red-500" />
         </Link>
+=======
+
+        {/* Compact Controls in Top-Right Corner */}
+        <div className="flex items-center gap-2">
+          {/* Sun/Moon Theme Toggle */}
+          <button
+            onClick={(e) => toggleThemeWithRipple(e, setTheme, isDark)}
+            aria-label="Toggle theme"
+            className="w-10 h-10 rounded-2xl bg-card border-[3px] border-border flex items-center justify-center shadow-sm text-foreground"
+            style={{ transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease, box-shadow 200ms ease' }}
+            onPointerDown={(e) => (e.currentTarget.style.transform = 'scale(0.88)')}
+            onPointerUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            onPointerLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            title={isDark ? (lang === 'ru' ? 'Дневной режим' : 'Light Mode') : (lang === 'ru' ? 'Ночной режим' : 'Dark Mode')}
+          >
+            {isDark ? (
+              <Sun size={20} className="text-amber-400 fill-amber-400/20" />
+            ) : (
+              <Moon size={20} className="text-indigo-600 fill-indigo-600/20" />
+            )}
+          </button>
+
+          {/* Language Switch Badge */}
+          <button
+            onClick={() => setLang(lang === 'en' ? 'ru' : 'en')}
+            aria-label="Toggle language"
+            className="h-10 px-3 rounded-2xl bg-card border-[3px] border-border flex items-center justify-center gap-1.5 shadow-sm text-foreground font-black text-xs"
+            style={{ transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease' }}
+            onPointerDown={(e) => (e.currentTarget.style.transform = 'scale(0.88)')}
+            onPointerUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            onPointerLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            title={lang === 'en' ? 'Switch to Russian' : 'Switch to English'}
+          >
+            <Globe size={16} className="text-primary" />
+            <span>{lang === 'en' ? 'EN' : 'RU'}</span>
+          </button>
+        </div>
+>>>>>>> Stashed changes
       </header>
 
       {/* ── Day Counter Card ── */}
       <div 
+<<<<<<< Updated upstream
         className="mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
         style={{ animationDelay: '150ms', animationFillMode: 'both' }}
+=======
+        className="flex items-center justify-between mb-6"
+        style={{ animation: 'fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 120ms both' }}
+>>>>>>> Stashed changes
       >
         <Card className="border-[3px] border-border bg-gradient-to-br from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10 shadow-md hover:shadow-lg transition-all rounded-3xl overflow-hidden relative group">
           <div className="absolute top-4 right-4 text-red-500/20 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300 pointer-events-none">
@@ -304,9 +354,13 @@ const Home = () => {
         <button
           onClick={() => setIsFeedbackOpen(true)}
           className={cn(
-            "w-12 h-12 rounded-2xl bg-card border-[3px] border-border text-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm hover:bg-primary/10",
+            "w-12 h-12 rounded-2xl bg-card border-[3px] border-border text-2xl flex items-center justify-center shadow-sm",
             selectedMood && "bg-primary text-primary-foreground border-primary"
           )}
+          style={{ transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease, border-color 200ms ease' }}
+          onPointerDown={(e) => (e.currentTarget.style.transform = 'scale(0.85)')}
+          onPointerUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+          onPointerLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           title={t(translations.home.feedback.title, lang)}
         >
           {selectedMood ? (
@@ -328,11 +382,35 @@ const Home = () => {
         </button>
       </div>
 
+<<<<<<< Updated upstream
       <div className="grid grid-cols-1 gap-4">
+=======
+      {/* ── Daily Message ── */}
+      <div 
+        className="mb-8 relative"
+        style={{ animation: 'fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 240ms both' }}
+      >
+        <div className="absolute -top-4 -left-2 opacity-10 text-primary">
+          <Quote size={48} fill="currentColor" />
+        </div>
+        <div className="bg-primary/5 rounded-3xl p-6 sm:p-7 border-[3px] border-border" style={{ transition: 'box-shadow 300ms cubic-bezier(0.16, 1, 0.3, 1)' }}>
+          <p className="text-xs font-bold uppercase tracking-widest text-primary/60 mb-2">
+            {t(tr.messageDayLabel, lang)}
+          </p>
+          <p className="text-lg sm:text-xl font-medium text-foreground leading-relaxed italic">
+            &ldquo;{messageOfTheDay}&rdquo;
+          </p>
+        </div>
+      </div>
+
+      {/* ── Main Features Grid (Calendar, Pickup Lines, Roasts, Important Dates) ── */}
+      <div className="grid grid-cols-1 gap-3 mb-8">
+>>>>>>> Stashed changes
         {features.map((feature, index) => (
           <Link 
             key={feature.path} 
             to={feature.path}
+<<<<<<< Updated upstream
             className="animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
             style={{
               animationDelay: `${600 + index * 100}ms`,
@@ -343,19 +421,35 @@ const Home = () => {
               <CardContent className="p-6 flex items-center gap-4">
                 <div className={`p-3 rounded-2xl ${feature.color} group-hover:scale-110 transition-transform`}>
                   <feature.icon size={24} />
+=======
+            className="block"
+            style={{ animation: `fadeSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) ${360 + index * 60}ms both` }}
+          >
+            <div
+              className="overflow-hidden border-[3px] border-border rounded-3xl bg-card shadow-sm cursor-pointer"
+              style={{ transition: 'transform 160ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease, border-color 200ms ease' }}
+              onPointerDown={(e) => { e.currentTarget.style.transform = 'scale(0.97)'; e.currentTarget.style.boxShadow = '0 0 0 rgba(0,0,0,0)'; }}
+              onPointerUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+              onPointerLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+            >
+              <div className="p-5 flex items-center gap-4">
+                <div className={`p-3 rounded-2xl ${feature.color} flex-shrink-0`} style={{ transition: 'transform 200ms cubic-bezier(0.16, 1, 0.3, 1)' }}>
+                  <feature.icon size={22} />
+>>>>>>> Stashed changes
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">{feature.title}</h3>
                   <p className="text-muted-foreground text-sm">{feature.description}</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </Link>
         ))}
       </div>
 
       {/* Theme + Language toggles */}
       <div 
+<<<<<<< Updated upstream
         className="mt-10 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
         style={{ animationDelay: '1100ms', animationFillMode: 'both' }}
       >
@@ -364,6 +458,69 @@ const Home = () => {
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border-[3px] border-border">
               {isDark ? <Moon size={20} /> : <Sun size={20} />}
+=======
+        onClick={() => navigate('/secret')}
+        title={lang === 'ru' ? 'Нажми, чтобы открыть секретную страницу' : 'Click to open Secret page'}
+        className="mb-8 cursor-pointer"
+        style={{ animation: 'fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 700ms both' }}
+      >
+        <div
+          className="border-[3px] border-border bg-gradient-to-br from-red-500/5 via-rose-500/5 to-pink-500/10 dark:from-red-500/10 dark:via-rose-500/10 dark:to-pink-500/20 shadow-md rounded-3xl overflow-hidden relative"
+          style={{ transition: 'transform 160ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 250ms ease, border-color 250ms ease' }}
+          onPointerDown={(e) => { e.currentTarget.style.transform = 'scale(0.97)'; }}
+          onPointerUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+          onPointerLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+        >
+          <div className="absolute top-4 right-4 text-red-500/20 group-hover:scale-125 group-hover:rotate-12 transition-transform duration-500 pointer-events-none">
+            <Heart size={90} className="fill-red-500/10" />
+          </div>
+          
+          <CardContent className="p-6 sm:p-8 flex flex-col items-center text-center relative z-10">
+            <span className="inline-flex items-center justify-center p-3 rounded-2xl bg-red-500/10 text-red-500 mb-3 animate-pulse group-hover:scale-110 transition-transform">
+              <Heart size={26} className="fill-red-500" />
+            </span>
+            <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-1">
+              {t(tr.dayCounter.title, lang)}
+            </p>
+            <h2 className="text-sm font-bold text-foreground opacity-80 mb-3">
+              {t(tr.dayCounter.subtitle, lang)}
+            </h2>
+            
+            {/* Live Ticker Grid */}
+            <div className="grid grid-cols-4 gap-2 sm:gap-4 max-w-sm w-full mt-2">
+              <div className="flex flex-col items-center p-2 sm:p-2.5 rounded-2xl bg-card/90 border-[3px] border-border shadow-sm group-hover:border-red-500/30 transition-colors">
+                <span className="text-xl sm:text-2xl font-black text-primary leading-tight">
+                  {timeDiff.days}
+                </span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">
+                  {t(tr.dayCounter.days, lang)}
+                </span>
+              </div>
+              <div className="flex flex-col items-center p-2 sm:p-2.5 rounded-2xl bg-card/90 border-[3px] border-border shadow-sm group-hover:border-red-500/30 transition-colors">
+                <span className="text-xl sm:text-2xl font-black text-foreground leading-tight">
+                  {String(timeDiff.hours).padStart(2, '0')}
+                </span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">
+                  {t(tr.dayCounter.hours, lang)}
+                </span>
+              </div>
+              <div className="flex flex-col items-center p-2 sm:p-2.5 rounded-2xl bg-card/90 border-[3px] border-border shadow-sm group-hover:border-red-500/30 transition-colors">
+                <span className="text-xl sm:text-2xl font-black text-foreground leading-tight">
+                  {String(timeDiff.minutes).padStart(2, '0')}
+                </span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">
+                  {t(tr.dayCounter.minutes, lang)}
+                </span>
+              </div>
+              <div className="flex flex-col items-center p-2 sm:p-2.5 rounded-2xl bg-card/90 border-[3px] border-border shadow-sm group-hover:border-red-500/30 transition-colors">
+                <span className="text-xl sm:text-2xl font-black text-foreground leading-tight">
+                  {String(timeDiff.seconds).padStart(2, '0')}
+                </span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">
+                  {t(tr.dayCounter.seconds, lang)}
+                </span>
+              </div>
+>>>>>>> Stashed changes
             </div>
             <span className="font-bold text-foreground">{t(trSettings.themeLabel, lang)}</span>
           </div>
@@ -389,6 +546,7 @@ const Home = () => {
           </button>
         </div>
 
+<<<<<<< Updated upstream
         {/* Language toggle */}
         <div className="flex items-center justify-between p-6 rounded-3xl border-[3px] border-border bg-card shadow-sm hover:shadow-[0_0_15px_rgba(255,235,175,0.06)] transition-all duration-300">
           <div className="flex items-center gap-4">
@@ -426,6 +584,13 @@ const Home = () => {
               />
             </span>
           </button>
+=======
+            <p className="text-[11px] font-bold text-red-500/80 mt-4 tracking-wide group-hover:text-red-500 transition-colors flex items-center gap-1">
+              <span>🔒</span>
+              <span>{lang === 'ru' ? 'Нажмите, чтобы открыть секрет' : 'Click to enter Secret Page'}</span>
+            </p>
+          </CardContent>
+>>>>>>> Stashed changes
         </div>
       </div>
 

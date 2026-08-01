@@ -6,15 +6,16 @@ import { Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLang } from '@/context/LanguageContext';
 import { translations, t } from '@/content/translations';
+import { toggleThemeWithRipple } from '@/utils/themeTransition';
 
 const ThemeToggle = () => {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const { lang } = useLang();
-  const isDark = theme === 'dark';
+  const isDark = theme === 'dark' || resolvedTheme === 'dark';
   const tr = translations.settings;
 
-  const toggleTheme = () => {
-    setTheme(isDark ? 'light' : 'dark');
+  const toggleTheme = (e: React.MouseEvent<HTMLElement>) => {
+    toggleThemeWithRipple(e, setTheme, isDark);
   };
 
   return (
