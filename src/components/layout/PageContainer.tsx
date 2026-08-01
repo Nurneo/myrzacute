@@ -61,7 +61,7 @@ const PageContainer = ({ children, className = "", useWallpaper = false, disable
           </Link>
         </div>
       )}
-      <main className={`flex-1 w-full max-w-md mx-auto px-6 pt-6 pb-20 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out ${className}`}>
+      <main className={`flex-1 w-full max-w-md mx-auto px-6 pt-6 pb-20 safe-bottom relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out ${className}`}>
         {children}
       </main>
     </div>

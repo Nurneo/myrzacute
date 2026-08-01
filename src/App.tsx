@@ -55,6 +55,8 @@ const SPLASH_VISIBLE_MS = 1000;
 const SPLASH_TEXT_EXIT_MS = 300;
 const SPLASH_BG_EXIT_MS = 600;
 
+import ErrorBoundary from "@/components/ErrorBoundary";
+
 const AppContent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isExitingText, setIsExitingText] = useState(false);
@@ -79,21 +81,23 @@ const AppContent = () => {
       {isLoading && <Loading isExitingText={isExitingText} isExitingBg={isExitingBg} />}
 
       <div
-        className={`flex-1 flex flex-col transition-all duration-600 ease-out ${
+        className={`flex-1 flex flex-col transition-all duration-500 ease-out ${
           isExitingBg ? "opacity-100 scale-100" : "opacity-0 scale-98"
         }`}
       >
-        <Suspense fallback={<RouteFallback />}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/pickup-lines" element={<PickupLinesPage />} />
-            <Route path="/roasts" element={<RoastsPage />} />
-            <Route path="/secret" element={<SecretPage />} />
-            <Route path="/important-dates" element={<ImportantDatesPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/calendar" element={<CalendarPage />} />
+              <Route path="/pickup-lines" element={<PickupLinesPage />} />
+              <Route path="/roasts" element={<RoastsPage />} />
+              <Route path="/secret" element={<SecretPage />} />
+              <Route path="/important-dates" element={<ImportantDatesPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Camera, Image as ImageIcon, RefreshCw, Download, X, Check, Heart, Sparkles } from 'lucide-react';
+import { Camera, Image as ImageIcon, RefreshCw, Download, Heart, Sparkles, Check } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -13,16 +13,30 @@ import {
 import { useLang } from '@/context/LanguageContext';
 import { translations, t } from '@/content/translations';
 import { showSuccess, showError } from '@/utils/toast';
-import { getGalleryPhoto, saveGalleryPhoto, compressImageFile } from '@/utils/galleryStorage';
-import { cn } from '@/lib/utils';
+import { getGalleryPhoto, saveGalleryPhoto, fetchGalleryPhotoFromCloud, compressImageFile } from '@/utils/galleryStorage';
+import { supabase } from '@/utils/supabase';
 
 const CoupleGallery: React.FC = () => {
   const { lang } = useLang();
-  const tr = translations.home.gallery;
+  const tr = translations.home?.gallery || {
+    title: { en: 'Our Last Date', ru: 'Кадр с нашей встречи' },
+    subtitle: { en: 'Until our next date 💖', ru: 'До нашей следующей встречи 💖' },
+    replaceBtn: { en: 'Replace photo', ru: 'Сменить фото' },
+    takePhoto: { en: 'Take a Photo', ru: 'Сделать фото' },
+    uploadPhoto: { en: 'Choose from Gallery', ru: 'Выбрать из галереи' },
+    modalTitle: { en: 'Update Couple Photo', ru: 'Обновить фото встречи' },
+    modalSubtitle: { en: 'Choose how you want to add a picture', ru: 'Выбери способ добавления фото' },
+    previewTitle: { en: 'Preview Photo', ru: 'Просмотр фото' },
+    previewSubtitle: { en: 'Looks great! Ready to set it?', ru: 'Выглядит отлично! Установить?' },
+    saveBtn: { en: 'Save Photo', ru: 'Сохранить фото' },
+    chooseAnotherBtn: { en: 'Choose another', ru: 'Выбрать другое' },
+    downloadBtn: { en: 'Download Photo', ru: 'Скачать фото' },
+  };
 
   const [currentPhoto, setCurrentPhoto] = useState<string>('');
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
   
   // Upload flow states: 'select' | 'preview'
   const [uploadStep, setUploadStep] = useState<'select' | 'preview'>('select');
@@ -33,7 +47,40 @@ const CoupleGallery: React.FC = () => {
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setImgError(false);
+  }, [currentPhoto]);
+
+  // Load from local storage & sync with cloud on mount
+  useEffect(() => {
     setCurrentPhoto(getGalleryPhoto());
+
+    let isMounted = true;
+    fetchGalleryPhotoFromCloud().then((cloudPhoto) => {
+      if (isMounted && cloudPhoto) {
+        setCurrentPhoto(cloudPhoto);
+      }
+    });
+
+    // Real-time Supabase synchronization across devices
+    if (supabase) {
+      const channel = supabase.channel('couple_gallery_sync');
+      channel
+        .on('broadcast', { event: 'photo_updated' }, (event) => {
+          if (event.payload?.photoUrl && isMounted) {
+            setCurrentPhoto(event.payload.photoUrl);
+          }
+        })
+        .subscribe();
+
+      return () => {
+        isMounted = false;
+        supabase.removeChannel(channel);
+      };
+    }
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,20 +101,22 @@ const CoupleGallery: React.FC = () => {
       );
     } finally {
       setIsProcessing(false);
-      // Reset input value so same file can be selected again if needed
       e.target.value = '';
     }
   };
 
-  const handleSavePhoto = () => {
+  const handleSavePhoto = async () => {
     if (!pendingPhoto) return;
-    const success = saveGalleryPhoto(pendingPhoto);
+    setIsProcessing(true);
+    const success = await saveGalleryPhoto(pendingPhoto);
+    setIsProcessing(false);
+
     if (success) {
       setCurrentPhoto(pendingPhoto);
       showSuccess(
         lang === 'ru'
-          ? 'Фотография успешно обновлена! 💕'
-          : 'Couple photo updated successfully! 💕'
+          ? 'Фотография успешно обновлена на всех устройствах! 💕'
+          : 'Couple photo updated across all devices! 💕'
       );
       setIsModalOpen(false);
       setPendingPhoto(null);
@@ -119,54 +168,42 @@ const CoupleGallery: React.FC = () => {
         onChange={handleFileChange}
       />
 
-      {/* Header title */}
-      <div className="flex items-center justify-between mb-3 px-1">
-        <div className="flex items-center gap-2">
-          <span className="p-1.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
-            <Heart size={16} className="fill-primary" />
-          </span>
-          <h2 className="text-xl font-extrabold tracking-tight text-foreground">
-            {t(tr.title, lang)}
-          </h2>
-        </div>
-        <span className="text-xs font-semibold text-muted-foreground">
-          {t(tr.subtitle, lang)}
-        </span>
-      </div>
-
-      {/* Photo Frame Container */}
+      {/* Photo Frame Container (Header text removed per request) */}
       <Card className="border-[3px] border-border bg-card shadow-md hover:shadow-lg transition-all rounded-3xl overflow-hidden relative group">
         <CardContent className="p-3 sm:p-4">
           <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full rounded-2xl overflow-hidden border-[3px] border-border/80 bg-muted/40 group">
-            {currentPhoto ? (
+            {currentPhoto && !imgError ? (
               <img
                 src={currentPhoto}
-                alt="Our Last Date"
+                alt=""
+                onError={() => setImgError(true)}
                 onClick={() => setIsLightboxOpen(true)}
                 className="w-full h-full object-cover cursor-pointer transition-transform duration-500 group-hover:scale-105"
               />
             ) : (
               <div
-                onClick={() => setIsLightboxOpen(true)}
-                className="w-full h-full flex flex-col items-center justify-center text-muted-foreground cursor-pointer p-4"
+                onClick={() => openReplaceModal()}
+                className="w-full h-full flex flex-col items-center justify-center text-muted-foreground cursor-pointer p-4 bg-primary/5 hover:bg-primary/10 transition-colors"
               >
-                <ImageIcon size={48} className="opacity-40 mb-2" />
-                <span className="text-sm font-semibold">
-                  {t(tr.subtitle, lang)}
+                <ImageIcon size={44} className="opacity-50 mb-2 text-primary" />
+                <span className="text-xs font-bold text-primary/80">
+                  {lang === 'ru' ? 'Нажми, чтобы добавить фото' : 'Tap to add photo'}
                 </span>
               </div>
             )}
 
             {/* Click to enlarge overlay hint */}
-            <div
-              onClick={() => setIsLightboxOpen(true)}
-              className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer pointer-events-auto"
-            >
-              <span className="bg-black/60 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-1.5">
-                <Sparkles size={14} />
-                {lang === 'ru' ? 'Нажми для просмотра' : 'Click to view'}
-              </span>
-            </div>
+            {currentPhoto && !imgError && (
+              <div
+                onClick={() => setIsLightboxOpen(true)}
+                className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer pointer-events-auto"
+              >
+                <span className="bg-black/60 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-1.5">
+                  <Sparkles size={14} />
+                  {lang === 'ru' ? 'Нажми для просмотра' : 'Click to view'}
+                </span>
+              </div>
+            )}
 
             {/* Replace Button on bottom-right corner */}
             <button
@@ -179,7 +216,7 @@ const CoupleGallery: React.FC = () => {
               title={t(tr.replaceBtn, lang)}
               aria-label={t(tr.replaceBtn, lang)}
             >
-              <RefreshCw size={18} className="animate-spin-slow" />
+              <RefreshCw size={18} />
               <span className="text-xs font-black tracking-wide hidden sm:inline">
                 {t(tr.replaceBtn, lang)}
               </span>
@@ -191,24 +228,22 @@ const CoupleGallery: React.FC = () => {
       {/* ── Lightbox Modal ── */}
       <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
         <DialogContent className="max-w-[95vw] sm:max-w-2xl rounded-3xl border-[3px] border-border bg-card/95 backdrop-blur-md p-4 sm:p-6 shadow-2xl flex flex-col gap-4">
-          <DialogHeader className="flex flex-row items-center justify-between border-b border-border/50 pb-3">
-            <div>
-              <DialogTitle className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
-                <Heart size={18} className="text-red-500 fill-red-500" />
-                {t(tr.title, lang)}
-              </DialogTitle>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleDownloadPhoto}
-                className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-primary-foreground transition-all flex items-center gap-1 text-xs font-bold"
-                title={t(tr.downloadBtn, lang)}
-              >
-                <Download size={16} />
-                <span>{t(tr.downloadBtn, lang)}</span>
-              </button>
-            </div>
+          {/* Header with pr-12 right padding so Download button NEVER overlaps the Close (X) icon */}
+          <DialogHeader className="flex flex-row items-center justify-between border-b border-border/50 pb-3 pr-12">
+            <DialogTitle className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
+              <Heart size={18} className="text-red-500 fill-red-500" />
+              {t(tr.title, lang)}
+            </DialogTitle>
+
+            <button
+              type="button"
+              onClick={handleDownloadPhoto}
+              className="py-1.5 px-3 rounded-xl bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-primary-foreground transition-all flex items-center gap-1.5 text-xs font-bold shadow-sm"
+              title={t(tr.downloadBtn, lang)}
+            >
+              <Download size={15} />
+              <span>{t(tr.downloadBtn, lang)}</span>
+            </button>
           </DialogHeader>
 
           <div className="relative w-full max-h-[70vh] flex items-center justify-center rounded-2xl overflow-hidden border-[3px] border-border bg-black/40">
@@ -221,7 +256,8 @@ const CoupleGallery: React.FC = () => {
             )}
           </div>
 
-          <div className="flex items-center justify-between pt-2">
+          {/* Action buttons */}
+          <div className="flex items-center justify-between pt-2 gap-3">
             <button
               type="button"
               onClick={() => {
@@ -233,6 +269,16 @@ const CoupleGallery: React.FC = () => {
               <RefreshCw size={14} />
               <span>{t(tr.replaceBtn, lang)}</span>
             </button>
+
+            <button
+              type="button"
+              onClick={handleDownloadPhoto}
+              className="sm:hidden py-2.5 px-4 rounded-xl border-[3px] border-border bg-primary/10 text-primary font-bold text-xs hover:bg-primary hover:text-primary-foreground transition-all flex items-center gap-1.5"
+            >
+              <Download size={14} />
+              <span>{t(tr.downloadBtn, lang)}</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setIsLightboxOpen(false)}
@@ -329,6 +375,7 @@ const CoupleGallery: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleSavePhoto}
+                  disabled={isProcessing}
                   className="flex-[1.5] py-3 px-4 rounded-2xl font-black bg-primary border-[3px] border-border text-primary-foreground hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-1.5 text-xs sm:text-sm shadow-md"
                 >
                   <Check size={18} />

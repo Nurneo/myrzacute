@@ -1,8 +1,11 @@
+import { supabase } from './supabase';
+
 const GALLERY_STORAGE_KEY = 'myrzacute_couple_gallery_photo';
 const DEFAULT_PHOTO_PATH = '/gallery-default.png';
+const CLOUD_DATE_KEY = 'couple_photo_current';
 
 /**
- * Gets the current couple gallery photo (Base64 data URL or default fallback path)
+ * Gets current gallery photo synchronously from local cache (with default fallback)
  */
 export function getGalleryPhoto(): string {
   try {
@@ -17,14 +20,66 @@ export function getGalleryPhoto(): string {
 }
 
 /**
- * Saves a new photo base64 string to storage
+ * Fetches latest gallery photo from Supabase cloud database
  */
-export function saveGalleryPhoto(photoBase64: string): boolean {
+export async function fetchGalleryPhotoFromCloud(): Promise<string> {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('lioness_feedback')
+        .select('note')
+        .eq('date', CLOUD_DATE_KEY)
+        .maybeSingle();
+
+      if (!error && data?.note) {
+        localStorage.setItem(GALLERY_STORAGE_KEY, data.note);
+        return data.note;
+      }
+    } catch (err) {
+      console.warn('Error fetching couple photo from Supabase cloud:', err);
+    }
+  }
+  return getGalleryPhoto();
+}
+
+/**
+ * Saves photo base64 to local cache & Supabase cloud, and broadcasts to other devices
+ */
+export async function saveGalleryPhoto(photoBase64: string): Promise<boolean> {
   try {
+    // 1. Update local storage cache immediately
     localStorage.setItem(GALLERY_STORAGE_KEY, photoBase64);
+
+    // 2. Persist to Supabase cloud database
+    if (supabase) {
+      const { error } = await supabase
+        .from('lioness_feedback')
+        .upsert({
+          date: CLOUD_DATE_KEY,
+          note: photoBase64,
+          mood: 5,
+        });
+
+      if (error) {
+        console.warn('Supabase cloud photo save warning:', error);
+      }
+
+      // 3. Broadcast to all active connected devices in real time
+      const channel = supabase.channel('couple_gallery_sync');
+      channel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          channel.send({
+            type: 'broadcast',
+            event: 'photo_updated',
+            payload: { photoUrl: photoBase64, timestamp: Date.now() },
+          });
+        }
+      });
+    }
+
     return true;
   } catch (err) {
-    console.error('Error saving gallery photo to localStorage:', err);
+    console.error('Error saving gallery photo:', err);
     return false;
   }
 }

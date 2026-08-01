@@ -273,8 +273,9 @@ html {
 }
 
 /* Disable default iOS tap highlight on buttons & links */
-button, a, [role="button"] {
+button, a, input, select, textarea, [role="button"] {
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 /* ── Telegram-Style Circular Ripple Theme Transition ── */
