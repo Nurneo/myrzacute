@@ -7,7 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { NotificationManager } from "@/components/NotificationManager";
 
-const Home = lazy(() => import("./pages/Home"));
+import Home from "./pages/Home";
 const CalendarPage = lazy(() => import("./pages/Calendar"));
 const PickupLinesPage = lazy(() => import("./pages/PickupLines"));
 const RoastsPage = lazy(() => import("./pages/Roasts"));
@@ -51,21 +51,21 @@ const RouteFallback = () => (
   </div>
 );
 
-const SPLASH_VISIBLE_MS = 900;
-const SPLASH_CROSSFADE_MS = 600;
+const SPLASH_DURATION_MS = 1000;
+const SPLASH_FADE_MS = 500;
 
 const AppContent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
-    const exitTimer = setTimeout(() => setIsExiting(true), SPLASH_VISIBLE_MS);
+    const fadeTimer = setTimeout(() => setIsExiting(true), SPLASH_DURATION_MS);
     const removeTimer = setTimeout(
       () => setIsLoading(false),
-      SPLASH_VISIBLE_MS + SPLASH_CROSSFADE_MS,
+      SPLASH_DURATION_MS + SPLASH_FADE_MS,
     );
     return () => {
-      clearTimeout(exitTimer);
+      clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
     };
   }, []);
@@ -74,14 +74,7 @@ const AppContent = () => {
     <div className="min-h-dvh bg-transparent flex flex-col relative overflow-hidden">
       {isLoading && <Loading isExiting={isExiting} />}
 
-      <div
-        className="flex-1 flex flex-col transform-gpu"
-        style={{
-          transition: 'opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1)',
-          opacity: isExiting ? 1 : 0,
-          transform: isExiting ? 'scale(1)' : 'scale(0.98)',
-        }}
-      >
+      <div className="flex-1 flex flex-col">
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<Home />} />
