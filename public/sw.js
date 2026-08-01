@@ -171,11 +171,20 @@ function scheduleNextBackgroundNotification() {
 }
 
 function fireBackgroundSlotNotification() {
-  const currentHours = new Date().getHours();
-  const isMidnight = currentHours >= 23 || currentHours < 2;
+  const now = new Date();
+  const currentHours = now.getHours();
+  const currentMinutes = now.getMinutes();
 
-  const title = isMidnight ? 'Полночный поцелуй 🌙💋' : 'Полуденное солнце ☀️💖';
-  const body = isMidnight
+  // Strict 6-minute window validation (23:59-00:05 or 11:59-12:05)
+  const isMidnightWindow = (currentHours === 23 && currentMinutes === 59) || (currentHours === 0 && currentMinutes <= 5);
+  const isMiddayWindow = (currentHours === 11 && currentMinutes === 59) || (currentHours === 12 && currentMinutes <= 5);
+
+  if (!isMidnightWindow && !isMiddayWindow) {
+    return;
+  }
+
+  const title = isMidnightWindow ? 'Полночный поцелуй 🌙💋' : 'Полуденное солнце ☀️💖';
+  const body = isMidnightWindow
     ? 'Уже 00:00! Время закрыть свои прекрасные глазки, львица. Обнимаю тебя крепко-крепко и шлю полуночный поцелуй. Сладких снов! 💖'
     : 'Уже 12:00! Заглянул напомнить тебе, что ты умничка и отлично справляешься. Сияй, львица! 🦁👑';
 

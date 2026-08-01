@@ -83,7 +83,7 @@ const UnsealedEnvelope = ({ title }: { title: string }) => (
 const SecretPage = () => {
   const navigate = useNavigate();
   const { lang } = useLang();
-  const { triggerNotification } = useNotificationContext();
+  const { triggerNotification, broadcastNotification } = useNotificationContext();
   const tr = translations.secret;
 
   const location = useLocation();
@@ -114,7 +114,7 @@ const SecretPage = () => {
           ? `Секретное уведомление #${idx + 1} отправлено! 🔔`
           : `Secret notification #${idx + 1} sent! 🔔`
       );
-      triggerNotification(content.title, content.message, content.icon, 'secret', idx);
+      broadcastNotification(content.title, content.message, content.icon, 'secret', idx);
     } else {
       toast.error(
         lang === 'ru'
@@ -270,7 +270,7 @@ const SecretPage = () => {
               ? `Секретное уведомление #${idx + 1} отправлено! 💖`
               : `Secret notification #${idx + 1} sent! 💖`
           );
-          triggerNotification(content.title, content.message, content.icon, 'secret', idx);
+          broadcastNotification(content.title, content.message, content.icon, 'secret', idx);
           setTimeout(() => {
             setActivePasscodeLetter(null);
             setPasscode("");

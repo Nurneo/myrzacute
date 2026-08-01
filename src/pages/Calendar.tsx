@@ -512,12 +512,12 @@ const CalendarPage = () => {
           </div>
         )}
       </div>
-      <FeedbackModal 
-        isOpen={isFeedbackOpen} 
-        selectedDate={selected} 
-        showCommentInput={false} 
-        onClose={(updatedMood) => { 
-          setIsFeedbackOpen(false); 
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        selectedDate={selected}
+        showCommentInput={false}
+        onClose={(updatedMood) => {
+          setIsFeedbackOpen(false);
           if (updatedMood !== undefined) {
             const dateStr = format(selected, 'yyyy-MM-dd');
             setLoggedFeedback(prev => ({
@@ -530,7 +530,7 @@ const CalendarPage = () => {
           } else {
             loadFeedback();
           }
-        }} 
+        }}
       />
     </PageContainer>
   );

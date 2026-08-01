@@ -118,6 +118,28 @@ export function scheduleSWBackgroundSlot(title: string, message: string, targetT
 }
 
 /**
+ * Checks if current time is strictly within the 6-minute window around scheduled times:
+ * - Midnight (00:00): 23:59 to 00:05
+ * - Midday (12:00): 11:59 to 12:05
+ */
+export function isWithinScheduledWindow(now: Date = new Date()): {
+  inWindow: boolean;
+  type: 'midnight' | 'midday' | null;
+} {
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+
+  if ((hours === 23 && minutes === 59) || (hours === 0 && minutes <= 5)) {
+    return { inWindow: true, type: 'midnight' };
+  }
+  if ((hours === 11 && minutes === 59) || (hours === 12 && minutes <= 5)) {
+    return { inWindow: true, type: 'midday' };
+  }
+
+  return { inWindow: false, type: null };
+}
+
+/**
  * Returns current slot info based on the time.
  * Slots:
  * 00:00 - 11:59: '00:00' (midnight)

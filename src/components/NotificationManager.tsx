@@ -11,7 +11,9 @@ import {
   getNotificationsEnabled,
   scheduleSWBackgroundSlot,
   getNextNotificationTarget,
+  isWithinScheduledWindow,
 } from '@/utils/notifications';
+import { supabase } from '@/utils/supabase';
 import CuteNotificationModal from './CuteNotificationModal';
 
 interface NotificationContextType {
@@ -22,10 +24,18 @@ interface NotificationContextType {
     type?: 'midnight' | 'midday' | 'secret',
     explicitIndex?: number
   ) => void;
+  broadcastNotification: (
+    title?: string,
+    message?: string,
+    icon?: string,
+    type?: 'midnight' | 'midday' | 'secret',
+    explicitIndex?: number
+  ) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType>({
   triggerNotification: () => {},
+  broadcastNotification: () => {},
 });
 
 export const useNotificationContext = () => useContext(NotificationContext);
@@ -87,6 +97,60 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
     [lang]
   );
 
+  const broadcastNotification = useCallback(
+    (
+      customTitle?: string,
+      customMessage?: string,
+      customIcon?: string,
+      customType?: 'midnight' | 'midday' | 'secret',
+      explicitIndex?: number
+    ) => {
+      // First trigger locally on sender device
+      triggerNotification(customTitle, customMessage, customIcon, customType, explicitIndex);
+
+      // Broadcast payload to all other connected devices in real time via Supabase Realtime
+      if (supabase) {
+        const channel = supabase.channel('global_notifications');
+        channel.subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            channel.send({
+              type: 'broadcast',
+              event: 'remote_notification',
+              payload: {
+                customTitle,
+                customMessage,
+                customIcon,
+                customType,
+                explicitIndex,
+                senderTime: Date.now(),
+              },
+            });
+          }
+        });
+      }
+    },
+    [triggerNotification]
+  );
+
+  // Listen for broadcast events from other devices
+  useEffect(() => {
+    if (!supabase) return;
+
+    const channel = supabase.channel('global_notifications');
+    channel
+      .on('broadcast', { event: 'remote_notification' }, (event) => {
+        if (event.payload) {
+          const { customTitle, customMessage, customIcon, customType, explicitIndex } = event.payload;
+          triggerNotification(customTitle, customMessage, customIcon, customType, explicitIndex);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [triggerNotification]);
+
   const checkScheduledNotifications = useCallback(() => {
     if (!getNotificationsEnabled()) return;
 
@@ -94,8 +158,17 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
     const { slotKey, type, dateStr } = getCurrentSlotInfo(now);
     const lastNotified = getLastNotifiedSlot();
 
-    // Fire if this slot hasn't been notified yet
+    // Fire ONLY if this slot hasn't been notified AND current time is within strict 6-minute window
     if (lastNotified !== slotKey) {
+      const windowInfo = isWithinScheduledWindow(now);
+
+      // If outside the 6-minute window (23:59-00:05 or 11:59-12:05), do NOT fire late notification.
+      // Update lastNotifiedSlot to mark this slot as expired/seen without bothering the user.
+      if (!windowInfo.inWindow) {
+        setLastNotifiedSlot(slotKey);
+        return;
+      }
+
       const content = getNotificationMessage(type, dateStr, lang);
 
       addNotificationToHistory({
@@ -154,6 +227,7 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
     <NotificationContext.Provider
       value={{
         triggerNotification,
+        broadcastNotification,
       }}
     >
       {children}
@@ -172,3 +246,4 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
     </NotificationContext.Provider>
   );
 };
+
