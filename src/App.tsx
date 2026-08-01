@@ -51,9 +51,9 @@ const RouteFallback = () => (
   </div>
 );
 
-const SPLASH_VISIBLE_MS = 1000;
-const SPLASH_TEXT_EXIT_MS = 300;
-const SPLASH_BG_EXIT_MS = 600;
+const SPLASH_VISIBLE_MS = 850;
+const SPLASH_TEXT_EXIT_MS = 250;
+const SPLASH_BG_EXIT_MS = 500;
 
 const AppContent = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -79,9 +79,12 @@ const AppContent = () => {
       {isLoading && <Loading isExitingText={isExitingText} isExitingBg={isExitingBg} />}
 
       <div
-        className={`flex-1 flex flex-col transition-all duration-600 ease-out ${
-          isExitingBg ? "opacity-100 scale-100" : "opacity-0 scale-98"
-        }`}
+        className="flex-1 flex flex-col transform-gpu"
+        style={{
+          transition: 'opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1)',
+          opacity: isExitingBg ? 1 : 0,
+          transform: isExitingBg ? 'scale(1)' : 'scale(0.98)',
+        }}
       >
         <Suspense fallback={<RouteFallback />}>
           <Routes>
