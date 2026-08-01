@@ -7,7 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { NotificationManager } from "@/components/NotificationManager";
 
-import Home from "./pages/Home";
+const Home = lazy(() => import("./pages/Home"));
 const CalendarPage = lazy(() => import("./pages/Calendar"));
 const PickupLinesPage = lazy(() => import("./pages/PickupLines"));
 const RoastsPage = lazy(() => import("./pages/Roasts"));
@@ -51,30 +51,38 @@ const RouteFallback = () => (
   </div>
 );
 
-const SPLASH_DURATION_MS = 1000;
-const SPLASH_FADE_MS = 500;
+const SPLASH_VISIBLE_MS = 1000;
+const SPLASH_TEXT_EXIT_MS = 300;
+const SPLASH_BG_EXIT_MS = 600;
 
 const AppContent = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isExiting, setIsExiting] = useState(false);
+  const [isExitingText, setIsExitingText] = useState(false);
+  const [isExitingBg, setIsExitingBg] = useState(false);
 
   useEffect(() => {
-    const fadeTimer = setTimeout(() => setIsExiting(true), SPLASH_DURATION_MS);
+    const textTimer = setTimeout(() => setIsExitingText(true), SPLASH_VISIBLE_MS);
+    const bgTimer = setTimeout(() => setIsExitingBg(true), SPLASH_VISIBLE_MS + SPLASH_TEXT_EXIT_MS);
     const removeTimer = setTimeout(
       () => setIsLoading(false),
-      SPLASH_DURATION_MS + SPLASH_FADE_MS,
+      SPLASH_VISIBLE_MS + SPLASH_TEXT_EXIT_MS + SPLASH_BG_EXIT_MS,
     );
     return () => {
-      clearTimeout(fadeTimer);
+      clearTimeout(textTimer);
+      clearTimeout(bgTimer);
       clearTimeout(removeTimer);
     };
   }, []);
 
   return (
     <div className="min-h-dvh bg-transparent flex flex-col relative overflow-hidden">
-      {isLoading && <Loading isExiting={isExiting} />}
+      {isLoading && <Loading isExitingText={isExitingText} isExitingBg={isExitingBg} />}
 
-      <div className="flex-1 flex flex-col">
+      <div
+        className={`flex-1 flex flex-col transition-all duration-600 ease-out ${
+          isExitingBg ? "opacity-100 scale-100" : "opacity-0 scale-98"
+        }`}
+      >
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<Home />} />
