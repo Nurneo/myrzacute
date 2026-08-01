@@ -75,53 +75,13 @@
 @layer base {
   * {
     @apply border-border;
-    -webkit-tap-highlight-color: transparent;
   }
   body {
     background: var(--bg-gradient);
     background-attachment: fixed;
-    @apply text-foreground antialiased;
+    @apply text-foreground antialiased transition-all duration-300;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    overscroll-behavior-y: none;
   }
-}
-
-/* ── Spring easing utilities ── */
-.ease-spring {
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-}
-.ease-bounce-out {
-  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.ease-smooth {
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ── GPU Acceleration ── */
-.transform-gpu {
-  transform: translateZ(0);
-  will-change: transform;
-  backface-visibility: hidden;
-  perspective: 1000px;
-}
-
-/* ── Touch interaction optimization ── */
-.touch-pan {
-  touch-action: pan-y;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* ── Interactive card: press feedback ── */
-.card-press {
-  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform;
-}
-.card-press:active {
-  transform: scale(0.975) translateZ(0);
 }
 
 .nav-blur {
@@ -130,40 +90,6 @@
 
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* ── Spring Entry Animations ── */
-@keyframes fadeSlideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scalePop {
-  from {
-    opacity: 0;
-    transform: scale(0.88);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 @keyframes fall {
@@ -201,8 +127,6 @@
 html {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
 }
 
 /* ── Custom Theme-based Global Scrollbar ── */

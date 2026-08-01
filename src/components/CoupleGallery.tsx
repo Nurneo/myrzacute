@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Camera, Image as ImageIcon, RefreshCw, Download, Check, Heart, Sparkles, Loader2 } from 'lucide-react';
+import { Camera, Image as ImageIcon, RefreshCw, Download, X, Check, Heart, Sparkles } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import {
 import { useLang } from '@/context/LanguageContext';
 import { translations, t } from '@/content/translations';
 import { showSuccess, showError } from '@/utils/toast';
-import { getGalleryPhotoLocal, fetchGalleryPhotoRemote, saveGalleryPhoto, compressImageFile } from '@/utils/galleryStorage';
+import { getGalleryPhoto, saveGalleryPhoto, compressImageFile } from '@/utils/galleryStorage';
 import { cn } from '@/lib/utils';
 
 const CoupleGallery: React.FC = () => {
@@ -33,20 +33,7 @@ const CoupleGallery: React.FC = () => {
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // 1. Render local photo immediately
-    setCurrentPhoto(getGalleryPhotoLocal());
-
-    // 2. Fetch remote photo from Supabase across all devices
-    let active = true;
-    fetchGalleryPhotoRemote().then((remotePhoto) => {
-      if (active && remotePhoto) {
-        setCurrentPhoto(remotePhoto);
-      }
-    });
-
-    return () => {
-      active = false;
-    };
+    setCurrentPhoto(getGalleryPhoto());
   }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +42,7 @@ const CoupleGallery: React.FC = () => {
 
     try {
       setIsProcessing(true);
-      const compressedBase64 = await compressImageFile(file, 1000, 0.78);
+      const compressedBase64 = await compressImageFile(file, 1200, 0.88);
       setPendingPhoto(compressedBase64);
       setUploadStep('preview');
     } catch (err: any) {
@@ -67,37 +54,30 @@ const CoupleGallery: React.FC = () => {
       );
     } finally {
       setIsProcessing(false);
+      // Reset input value so same file can be selected again if needed
       e.target.value = '';
     }
   };
 
-  const handleSavePhoto = async () => {
+  const handleSavePhoto = () => {
     if (!pendingPhoto) return;
-    setIsProcessing(true);
-    try {
-      const success = await saveGalleryPhoto(pendingPhoto);
-      if (success) {
-        setCurrentPhoto(pendingPhoto);
-        showSuccess(
-          lang === 'ru'
-            ? 'Фотография успешно сохранена на всех устройствах! 💕'
-            : 'Couple photo updated across all devices! 💕'
-        );
-        setIsModalOpen(false);
-        setPendingPhoto(null);
-        setUploadStep('select');
-      } else {
-        showError(
-          lang === 'ru'
-            ? 'Ошибка при сохранении фотографии'
-            : 'Error saving photo'
-        );
-      }
-    } catch (err: any) {
-      console.error(err);
-      showError(err.message || 'Failed to save photo');
-    } finally {
-      setIsProcessing(false);
+    const success = saveGalleryPhoto(pendingPhoto);
+    if (success) {
+      setCurrentPhoto(pendingPhoto);
+      showSuccess(
+        lang === 'ru'
+          ? 'Фотография успешно обновлена! 💕'
+          : 'Couple photo updated successfully! 💕'
+      );
+      setIsModalOpen(false);
+      setPendingPhoto(null);
+      setUploadStep('select');
+    } else {
+      showError(
+        lang === 'ru'
+          ? 'Ошибка при сохранении фотографии'
+          : 'Error saving photo'
+      );
     }
   };
 
@@ -211,21 +191,21 @@ const CoupleGallery: React.FC = () => {
       {/* ── Lightbox Modal ── */}
       <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
         <DialogContent className="max-w-[95vw] sm:max-w-2xl rounded-3xl border-[3px] border-border bg-card/95 backdrop-blur-md p-4 sm:p-6 shadow-2xl flex flex-col gap-4">
-          <DialogHeader className="flex flex-row items-center justify-between border-b border-border/50 pb-3 pr-10">
+          <DialogHeader className="flex flex-row items-center justify-between border-b border-border/50 pb-3">
             <div>
               <DialogTitle className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
                 <Heart size={18} className="text-red-500 fill-red-500" />
                 {t(tr.title, lang)}
               </DialogTitle>
             </div>
-            <div className="flex items-center gap-2 mr-6">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleDownloadPhoto}
-                className="py-1.5 px-3 rounded-xl bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-primary-foreground transition-all flex items-center gap-1.5 text-xs font-bold shadow-sm"
+                className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-primary-foreground transition-all flex items-center gap-1 text-xs font-bold"
                 title={t(tr.downloadBtn, lang)}
               >
-                <Download size={15} />
+                <Download size={16} />
                 <span>{t(tr.downloadBtn, lang)}</span>
               </button>
             </div>
@@ -268,7 +248,7 @@ const CoupleGallery: React.FC = () => {
       <Dialog
         open={isModalOpen}
         onOpenChange={(open) => {
-          if (!open && !isProcessing) {
+          if (!open) {
             setIsModalOpen(false);
             setPendingPhoto(null);
             setUploadStep('select');
@@ -340,7 +320,6 @@ const CoupleGallery: React.FC = () => {
                     setPendingPhoto(null);
                     setUploadStep('select');
                   }}
-                  disabled={isProcessing}
                   className="flex-1 py-3 px-4 rounded-2xl font-bold border-[3px] border-border text-foreground bg-card hover:bg-muted/20 transition-all active:scale-95 flex items-center justify-center gap-1.5 text-xs sm:text-sm"
                 >
                   <RefreshCw size={16} />
@@ -350,17 +329,10 @@ const CoupleGallery: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleSavePhoto}
-                  disabled={isProcessing}
                   className="flex-[1.5] py-3 px-4 rounded-2xl font-black bg-primary border-[3px] border-border text-primary-foreground hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-1.5 text-xs sm:text-sm shadow-md"
                 >
-                  {isProcessing ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <>
-                      <Check size={18} />
-                      <span>{t(tr.saveBtn, lang)}</span>
-                    </>
-                  )}
+                  <Check size={18} />
+                  <span>{t(tr.saveBtn, lang)}</span>
                 </button>
               </div>
             </div>

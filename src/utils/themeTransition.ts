@@ -34,13 +34,14 @@ export function toggleThemeWithRipple(
       `circle(${endRadius}px at ${x}px ${y}px)`,
     ];
 
+    // Animate new root view expanding outwards from touch origin
     document.documentElement.animate(
       {
         clipPath: isDark ? clipPath.reverse() : clipPath,
       },
       {
-        duration: 420,
-        easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        duration: 500,
+        easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
         pseudoElement: isDark
           ? '::view-transition-old(root)'
           : '::view-transition-new(root)',

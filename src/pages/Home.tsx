@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import PageContainer from '@/components/layout/PageContainer';
-import SectionHeader from '@/components/ui/SectionHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, Heart, Flame, Quote, Sun, Moon, Globe, Sparkles } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -13,6 +12,7 @@ import { translations, t } from '@/content/translations';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import FeedbackModal from '@/components/FeedbackModal';
+import CoupleGallery from '@/components/CoupleGallery';
 import { fetchFeedback } from '@/utils/feedbackStorage';
 import { toggleThemeWithRipple } from '@/utils/themeTransition';
 
@@ -61,7 +61,7 @@ function useTypewriter(target: string, speed = 60) {
 const Home = () => {
   const navigate = useNavigate();
   const { lang, setLang } = useLang();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   // Listen to keystrokes to redirect on passcode
   useEffect(() => {
@@ -88,9 +88,10 @@ const Home = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [navigate]);
+
   const tr = translations.home;
   const trSettings = translations.settings;
-  const isDark = theme === 'dark';
+  const isDark = theme === 'dark' || resolvedTheme === 'dark';
 
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
@@ -180,7 +181,7 @@ const Home = () => {
       title: t(tr.features.roasts.title, lang),
       description: t(tr.features.roasts.description, lang),
       icon: Flame,
-      color: "bg-orange-100 text-orange-500",
+      color: "bg-orange-100 text-orange-500 dark:bg-orange-500/10 dark:text-orange-400",
       path: "/roasts",
     },
     {
@@ -194,15 +195,11 @@ const Home = () => {
 
   return (
     <PageContainer>
-<<<<<<< Updated upstream
-      <header className="mb-8 flex justify-between items-start animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
-=======
       {/* ── Top Header with Compact Theme & Language Switches ── */}
-      <header className="mb-6 flex justify-between items-center" style={{ animation: 'fadeSlideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
->>>>>>> Stashed changes
+      <header className="mb-6 flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
         <div>
-          <h1 className="text-4xl font-black text-foreground tracking-tighter">MYRZACUTE</h1>
-          <p className="text-muted-foreground font-medium">
+          <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tighter">MYRZACUTE</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm font-medium">
             {lang === 'ru' ? 'С возвращением, ' : 'Welcome back, '}
             <span className="text-primary font-bold">
               {displayed}
@@ -213,15 +210,6 @@ const Home = () => {
             .
           </p>
         </div>
-<<<<<<< Updated upstream
-        <Link
-          to="/secret"
-          className="w-10 h-10 rounded-2xl bg-card border-[3px] border-border flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm text-red-500 hover:bg-red-500/10"
-          title={lang === 'ru' ? 'Секрет' : 'Secret'}
-        >
-          <Heart size={20} className="fill-red-500" />
-        </Link>
-=======
 
         {/* Compact Controls in Top-Right Corner */}
         <div className="flex items-center gap-2">
@@ -229,11 +217,7 @@ const Home = () => {
           <button
             onClick={(e) => toggleThemeWithRipple(e, setTheme, isDark)}
             aria-label="Toggle theme"
-            className="w-10 h-10 rounded-2xl bg-card border-[3px] border-border flex items-center justify-center shadow-sm text-foreground"
-            style={{ transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease, box-shadow 200ms ease' }}
-            onPointerDown={(e) => (e.currentTarget.style.transform = 'scale(0.88)')}
-            onPointerUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-            onPointerLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            className="w-10 h-10 rounded-2xl bg-card border-[3px] border-border flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm text-foreground hover:bg-primary/10"
             title={isDark ? (lang === 'ru' ? 'Дневной режим' : 'Light Mode') : (lang === 'ru' ? 'Ночной режим' : 'Dark Mode')}
           >
             {isDark ? (
@@ -247,120 +231,30 @@ const Home = () => {
           <button
             onClick={() => setLang(lang === 'en' ? 'ru' : 'en')}
             aria-label="Toggle language"
-            className="h-10 px-3 rounded-2xl bg-card border-[3px] border-border flex items-center justify-center gap-1.5 shadow-sm text-foreground font-black text-xs"
-            style={{ transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease' }}
-            onPointerDown={(e) => (e.currentTarget.style.transform = 'scale(0.88)')}
-            onPointerUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-            onPointerLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            className="h-10 px-3 rounded-2xl bg-card border-[3px] border-border flex items-center justify-center gap-1.5 transition-all hover:scale-105 active:scale-95 shadow-sm text-foreground hover:bg-primary/10 font-black text-xs"
             title={lang === 'en' ? 'Switch to Russian' : 'Switch to English'}
           >
             <Globe size={16} className="text-primary" />
             <span>{lang === 'en' ? 'EN' : 'RU'}</span>
           </button>
         </div>
->>>>>>> Stashed changes
       </header>
 
-      {/* ── Day Counter Card ── */}
-      <div 
-<<<<<<< Updated upstream
-        className="mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
-        style={{ animationDelay: '150ms', animationFillMode: 'both' }}
-=======
-        className="flex items-center justify-between mb-6"
-        style={{ animation: 'fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 120ms both' }}
->>>>>>> Stashed changes
-      >
-        <Card className="border-[3px] border-border bg-gradient-to-br from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10 shadow-md hover:shadow-lg transition-all rounded-3xl overflow-hidden relative group">
-          <div className="absolute top-4 right-4 text-red-500/20 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300 pointer-events-none">
-            <Heart size={80} className="fill-red-500/10" />
-          </div>
-          
-          <CardContent className="p-6 sm:p-8 flex flex-col items-center text-center">
-            <span className="inline-flex items-center justify-center p-2.5 rounded-2xl bg-red-500/10 text-red-500 mb-3 animate-pulse">
-              <Heart size={24} className="fill-red-500" />
-            </span>
-            <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-1">
-              {t(tr.dayCounter.title, lang)}
-            </p>
-            <h2 className="text-sm font-bold text-foreground opacity-80 mb-3">
-              {t(tr.dayCounter.subtitle, lang)}
-            </h2>
-            
-            {/* Live Ticker Grid */}
-            <div className="grid grid-cols-4 gap-2 sm:gap-4 max-w-sm w-full mt-2">
-              <div className="flex flex-col items-center p-2 rounded-2xl bg-card border-[3px] border-border shadow-sm">
-                <span className="text-xl sm:text-2xl font-black text-primary leading-tight">
-                  {timeDiff.days}
-                </span>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">
-                  {t(tr.dayCounter.days, lang)}
-                </span>
-              </div>
-              <div className="flex flex-col items-center p-2 rounded-2xl bg-card border-[3px] border-border shadow-sm">
-                <span className="text-xl sm:text-2xl font-black text-foreground leading-tight">
-                  {String(timeDiff.hours).padStart(2, '0')}
-                </span>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">
-                  {t(tr.dayCounter.hours, lang)}
-                </span>
-              </div>
-              <div className="flex flex-col items-center p-2 rounded-2xl bg-card border-[3px] border-border shadow-sm">
-                <span className="text-xl sm:text-2xl font-black text-foreground leading-tight">
-                  {String(timeDiff.minutes).padStart(2, '0')}
-                </span>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">
-                  {t(tr.dayCounter.minutes, lang)}
-                </span>
-              </div>
-              <div className="flex flex-col items-center p-2 rounded-2xl bg-card border-[3px] border-border shadow-sm">
-                <span className="text-xl sm:text-2xl font-black text-foreground leading-tight">
-                  {String(timeDiff.seconds).padStart(2, '0')}
-                </span>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">
-                  {t(tr.dayCounter.seconds, lang)}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div 
-        className="mb-10 relative animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
-        style={{ animationDelay: '300ms', animationFillMode: 'both' }}
-      >
-        <div className="absolute -top-4 -left-2 opacity-10 text-primary">
-          <Quote size={48} fill="currentColor" />
-        </div>
-        <div className="bg-primary/5 rounded-3xl p-8 border-[3px] border-border">
-          <p className="text-xs font-bold uppercase tracking-widest text-primary/60 mb-3">
-            {t(tr.messageDayLabel, lang)}
-          </p>
-          <p className="text-xl font-medium text-foreground leading-relaxed italic">
-            &ldquo;{messageOfTheDay}&rdquo;
-          </p>
-        </div>
-      </div>
-
+      {/* ── "How u doin" / "Как настроение" Section ── */}
       <div 
         className="flex items-center justify-between mb-6 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
-        style={{ animationDelay: '450ms', animationFillMode: 'both' }}
+        style={{ animationDelay: '150ms', animationFillMode: 'both' }}
       >
         <div>
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">{t(tr.exploreTitle, lang)}</h2>
-          <p className="text-muted-foreground text-sm mt-1">{t(tr.exploreSubtitle, lang)}</p>
+          <h2 className="text-2xl font-black text-foreground tracking-tight">{t(tr.exploreTitle, lang)}</h2>
+          <p className="text-muted-foreground text-xs sm:text-sm mt-0.5">{t(tr.exploreSubtitle, lang)}</p>
         </div>
         <button
           onClick={() => setIsFeedbackOpen(true)}
           className={cn(
-            "w-12 h-12 rounded-2xl bg-card border-[3px] border-border text-2xl flex items-center justify-center shadow-sm",
+            "w-12 h-12 rounded-2xl bg-card border-[3px] border-border text-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm hover:bg-primary/10",
             selectedMood && "bg-primary text-primary-foreground border-primary"
           )}
-          style={{ transition: 'transform 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease, border-color 200ms ease' }}
-          onPointerDown={(e) => (e.currentTarget.style.transform = 'scale(0.85)')}
-          onPointerUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-          onPointerLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           title={t(translations.home.feedback.title, lang)}
         >
           {selectedMood ? (
@@ -382,18 +276,15 @@ const Home = () => {
         </button>
       </div>
 
-<<<<<<< Updated upstream
-      <div className="grid grid-cols-1 gap-4">
-=======
       {/* ── Daily Message ── */}
       <div 
-        className="mb-8 relative"
-        style={{ animation: 'fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 240ms both' }}
+        className="mb-8 relative animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
+        style={{ animationDelay: '300ms', animationFillMode: 'both' }}
       >
         <div className="absolute -top-4 -left-2 opacity-10 text-primary">
           <Quote size={48} fill="currentColor" />
         </div>
-        <div className="bg-primary/5 rounded-3xl p-6 sm:p-7 border-[3px] border-border" style={{ transition: 'box-shadow 300ms cubic-bezier(0.16, 1, 0.3, 1)' }}>
+        <div className="bg-primary/5 rounded-3xl p-6 sm:p-7 border-[3px] border-border">
           <p className="text-xs font-bold uppercase tracking-widest text-primary/60 mb-2">
             {t(tr.messageDayLabel, lang)}
           </p>
@@ -404,73 +295,43 @@ const Home = () => {
       </div>
 
       {/* ── Main Features Grid (Calendar, Pickup Lines, Roasts, Important Dates) ── */}
-      <div className="grid grid-cols-1 gap-3 mb-8">
->>>>>>> Stashed changes
+      <div className="grid grid-cols-1 gap-3.5 mb-8">
         {features.map((feature, index) => (
           <Link 
             key={feature.path} 
             to={feature.path}
-<<<<<<< Updated upstream
             className="animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
             style={{
-              animationDelay: `${600 + index * 100}ms`,
+              animationDelay: `${450 + index * 80}ms`,
               animationFillMode: 'both',
             }}
           >
             <Card className="overflow-hidden border-[3px] border-border shadow-sm hover:shadow-md hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,235,175,0.12)] transition-all cursor-pointer group active:scale-[0.98]">
-              <CardContent className="p-6 flex items-center gap-4">
+              <CardContent className="p-5 flex items-center gap-4">
                 <div className={`p-3 rounded-2xl ${feature.color} group-hover:scale-110 transition-transform`}>
-                  <feature.icon size={24} />
-=======
-            className="block"
-            style={{ animation: `fadeSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) ${360 + index * 60}ms both` }}
-          >
-            <div
-              className="overflow-hidden border-[3px] border-border rounded-3xl bg-card shadow-sm cursor-pointer"
-              style={{ transition: 'transform 160ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease, border-color 200ms ease' }}
-              onPointerDown={(e) => { e.currentTarget.style.transform = 'scale(0.97)'; e.currentTarget.style.boxShadow = '0 0 0 rgba(0,0,0,0)'; }}
-              onPointerUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-              onPointerLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-            >
-              <div className="p-5 flex items-center gap-4">
-                <div className={`p-3 rounded-2xl ${feature.color} flex-shrink-0`} style={{ transition: 'transform 200ms cubic-bezier(0.16, 1, 0.3, 1)' }}>
                   <feature.icon size={22} />
->>>>>>> Stashed changes
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm">{feature.description}</p>
+                  <h3 className="font-bold text-base sm:text-lg">{feature.title}</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">{feature.description}</p>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </Link>
         ))}
       </div>
 
-      {/* Theme + Language toggles */}
+      {/* ── Couple Date Gallery Component (Placed below Important Dates, above Love-Timer) ── */}
+      <CoupleGallery />
+
+      {/* ── Day Counter Card (Love-Timer at Bottom — Click anywhere to enter Secret Page) ── */}
       <div 
-<<<<<<< Updated upstream
-        className="mt-10 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
-        style={{ animationDelay: '1100ms', animationFillMode: 'both' }}
-      >
-        {/* Theme toggle */}
-        <div className="flex items-center justify-between p-6 rounded-3xl border-[3px] border-border bg-card shadow-sm hover:shadow-[0_0_15px_rgba(255,235,175,0.06)] transition-all duration-300">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border-[3px] border-border">
-              {isDark ? <Moon size={20} /> : <Sun size={20} />}
-=======
         onClick={() => navigate('/secret')}
         title={lang === 'ru' ? 'Нажми, чтобы открыть секретную страницу' : 'Click to open Secret page'}
-        className="mb-8 cursor-pointer"
-        style={{ animation: 'fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 700ms both' }}
+        className="mb-8 cursor-pointer group animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out"
+        style={{ animationDelay: '850ms', animationFillMode: 'both' }}
       >
-        <div
-          className="border-[3px] border-border bg-gradient-to-br from-red-500/5 via-rose-500/5 to-pink-500/10 dark:from-red-500/10 dark:via-rose-500/10 dark:to-pink-500/20 shadow-md rounded-3xl overflow-hidden relative"
-          style={{ transition: 'transform 160ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 250ms ease, border-color 250ms ease' }}
-          onPointerDown={(e) => { e.currentTarget.style.transform = 'scale(0.97)'; }}
-          onPointerUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-          onPointerLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-        >
+        <Card className="border-[3px] border-border bg-gradient-to-br from-red-500/5 via-rose-500/5 to-pink-500/10 dark:from-red-500/10 dark:via-rose-500/10 dark:to-pink-500/20 shadow-md hover:shadow-xl hover:border-red-500/40 transition-all duration-300 rounded-3xl overflow-hidden relative group active:scale-[0.99]">
           <div className="absolute top-4 right-4 text-red-500/20 group-hover:scale-125 group-hover:rotate-12 transition-transform duration-500 pointer-events-none">
             <Heart size={90} className="fill-red-500/10" />
           </div>
@@ -520,78 +381,14 @@ const Home = () => {
                   {t(tr.dayCounter.seconds, lang)}
                 </span>
               </div>
->>>>>>> Stashed changes
             </div>
-            <span className="font-bold text-foreground">{t(trSettings.themeLabel, lang)}</span>
-          </div>
-          <button
-            onClick={() => setTheme(isDark ? 'light' : 'dark')}
-            aria-label="Toggle theme"
-            className="relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-all duration-500 focus:outline-none"
-            style={{
-              backgroundColor: isDark ? '#4c9db0' : '#a89bf2',
-              borderColor: isDark ? '#ffebaf' : '#050505',
-            }}
-          >
-            <span
-              className={cn(
-                "inline-block h-6 w-6 transform rounded-full transition-transform duration-500 border-[3px]",
-                isDark ? "translate-x-11" : "translate-x-1"
-              )}
-              style={{
-                backgroundColor: isDark ? '#ffebaf' : '#050505',
-                borderColor: isDark ? '#ffebaf' : '#050505',
-              }}
-            />
-          </button>
-        </div>
 
-<<<<<<< Updated upstream
-        {/* Language toggle */}
-        <div className="flex items-center justify-between p-6 rounded-3xl border-[3px] border-border bg-card shadow-sm hover:shadow-[0_0_15px_rgba(255,235,175,0.06)] transition-all duration-300">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border-[3px] border-border">
-              <Globe size={20} />
-            </div>
-            <span className="font-bold text-foreground">
-              {lang === 'en' ? 'EN' : 'RU'}
-            </span>
-          </div>
-          <button
-            onClick={() => setLang(lang === 'en' ? 'ru' : 'en')}
-            aria-label="Toggle language"
-            className="relative inline-flex h-10 w-20 items-center rounded-full border-[3px] transition-all duration-500 focus:outline-none"
-            style={{
-              backgroundColor: isDark ? '#4c9db0' : '#a89bf2',
-              borderColor: isDark ? '#ffebaf' : '#050505',
-            }}
-          >
-            <span
-              className={cn(
-                "inline-flex h-7 w-7 items-center justify-center transform rounded-full transition-transform duration-500 overflow-hidden shadow-sm",
-                lang === 'en' ? "translate-x-10" : "translate-x-1"
-              )}
-            >
-              <img
-                src={lang === 'en'
-                  ? "https://flagsapi.com/RU/flat/64.png"
-                  : "https://flagsapi.com/GB/flat/64.png"
-                }
-                alt={lang === 'en' ? "Switch to Russian" : "Switch to English"}
-                className="w-7 h-7 object-cover rounded-full"
-                loading="lazy"
-                decoding="async"
-              />
-            </span>
-          </button>
-=======
             <p className="text-[11px] font-bold text-red-500/80 mt-4 tracking-wide group-hover:text-red-500 transition-colors flex items-center gap-1">
               <span>🔒</span>
               <span>{lang === 'ru' ? 'Нажмите, чтобы открыть секрет' : 'Click to enter Secret Page'}</span>
             </p>
           </CardContent>
->>>>>>> Stashed changes
-        </div>
+        </Card>
       </div>
 
       <FeedbackModal 
