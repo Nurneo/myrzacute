@@ -116,5 +116,12 @@ export const importantDates: ImportantDate[] = [
       en: 'The day we were no longer Extra virgin, you know 😉',
       ru: 'День когда мы больше не Extra virgin, юноу 😉'
     }
+  },
+  {
+    date: '28.08.2026',
+    title: {
+      en: "First and last attempt to break-up, and you didn't let me do it. Thank you",
+      ru: 'Первая и последняя попытка расстаться, и ты запретила. Спасибо'
+    }
   }
 ];
