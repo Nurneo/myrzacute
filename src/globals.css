@@ -109,6 +109,29 @@
   }
 }
 
+@keyframes fall-and-sway {
+  0% {
+    transform: translateY(-60px) translateX(0px) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+    transform: translateY(15vh) translateX(var(--sway-amount, 25px)) rotate(calc(var(--spin-rotation, 180deg) * 0.25));
+  }
+  45% {
+    transform: translateY(45vh) translateX(calc(var(--sway-amount, 25px) * -1)) rotate(calc(var(--spin-rotation, 180deg) * 0.5));
+  }
+  75% {
+    opacity: 0.9;
+    transform: translateY(75vh) translateX(calc(var(--sway-amount, 25px) * 0.8)) rotate(calc(var(--spin-rotation, 180deg) * 0.75));
+  }
+  100% {
+    transform: translateY(calc(100vh + 60px)) translateX(calc(var(--sway-amount, 25px) * -0.5)) rotate(var(--spin-rotation, 360deg));
+    opacity: 0;
+  }
+}
+
+
 @keyframes vibrate {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
   15% { transform: translate(-5px, -3px) rotate(-1.5deg); }

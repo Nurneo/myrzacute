@@ -5,6 +5,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import GlassHeartsBackground from '@/components/GlassHeartsBackground';
+import GlassAutumnLeavesBackground from '@/components/GlassAutumnLeavesBackground';
+import FallingAutumnLeaves from '@/components/FallingAutumnLeaves';
 
 interface PageContainerProps {
   children: React.ReactNode;
@@ -48,8 +50,12 @@ const PageContainer = ({ children, className = "", useWallpaper = false, disable
         />
       )}
 
-      {/* Persistent Glass Hearts Background Layer */}
+      {/* Persistent Glass Hearts & Autumn Background Layers */}
       <GlassHeartsBackground />
+      <GlassAutumnLeavesBackground />
+
+      {/* Gentle Falling Autumn Leaves Overlay */}
+      <FallingAutumnLeaves />
 
       {showBackButton && (
         <div className="w-full max-w-md mx-auto px-6 pt-6 relative z-50">
