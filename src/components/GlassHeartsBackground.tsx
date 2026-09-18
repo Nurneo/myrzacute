@@ -2,7 +2,14 @@ import React from 'react';
 
 const GlassHeartsBackground = () => {
   return (
-    <div className="fixed inset-0 pointer-events-none z-[1] overflow-hidden select-none">
+    <div 
+      className="fixed inset-0 pointer-events-none z-[1] overflow-hidden select-none"
+      style={{
+        transform: 'translate3d(0,0,0)',
+        willChange: 'transform',
+        contain: 'strict',
+      }}
+    >
       {/* Hidden SVG for definitions */}
       <svg width="0" height="0" className="absolute pointer-events-none">
         <defs>

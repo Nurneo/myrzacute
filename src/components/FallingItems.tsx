@@ -73,7 +73,14 @@ const FallingItems: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+    <div 
+      className="fixed inset-0 pointer-events-none z-50 overflow-hidden"
+      style={{
+        transform: 'translate3d(0,0,0)',
+        willChange: 'transform',
+        contain: 'strict',
+      }}
+    >
       {items.map(item => (
         <div
           key={item.id}
@@ -88,6 +95,10 @@ const FallingItems: React.FC = () => {
             animationTimingFunction: 'linear',
             animationFillMode: 'forwards',
             animationIterationCount: 1,
+            willChange: 'transform, opacity',
+            transform: 'translate3d(0,0,0)',
+            WebkitBackfaceVisibility: 'hidden',
+            backfaceVisibility: 'hidden',
             // Pass the random spin rotation as CSS custom property
             ['--spin-rotation' as any]: `${item.rotation}deg`,
           }}

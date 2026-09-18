@@ -47,7 +47,14 @@ const FallingAutumnLeaves: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[3] overflow-hidden select-none">
+    <div 
+      className="fixed inset-0 pointer-events-none z-[3] overflow-hidden select-none"
+      style={{
+        transform: 'translate3d(0,0,0)',
+        willChange: 'transform',
+        contain: 'strict',
+      }}
+    >
       {leaves.map(leaf => (
         <div
           key={leaf.id}
@@ -63,6 +70,10 @@ const FallingAutumnLeaves: React.FC = () => {
             animationTimingFunction: 'ease-in-out',
             animationFillMode: 'forwards',
             animationIterationCount: 1,
+            willChange: 'transform, opacity',
+            transform: 'translate3d(0,0,0)',
+            WebkitBackfaceVisibility: 'hidden',
+            backfaceVisibility: 'hidden',
             // CSS Custom properties for sway and rotation
             ['--spin-rotation' as any]: `${leaf.rotation}deg`,
             ['--sway-amount' as any]: `${leaf.sway}px`,
