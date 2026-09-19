@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Camera, Image as ImageIcon, RefreshCw, Download, Heart, Sparkles, Check } from 'lucide-react';
+import { Camera, Image as ImageIcon, RefreshCw, Download, Heart, Sparkles, Check, EyeOff } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,8 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useLang } from '@/context/LanguageContext';
+import { useSafeMode } from '@/context/SafeModeContext';
+import { cn } from '@/lib/utils';
 import { translations, t } from '@/content/translations';
 import { showSuccess, showError } from '@/utils/toast';
 import { getGalleryPhoto, saveGalleryPhoto, fetchGalleryPhotoFromCloud, compressImageFile } from '@/utils/galleryStorage';
@@ -18,6 +20,7 @@ import { supabase } from '@/utils/supabase';
 
 const CoupleGallery: React.FC = () => {
   const { lang } = useLang();
+  const { isSafeMode } = useSafeMode();
   const tr = translations.home?.gallery || {
     title: { en: 'Our Last Date', ru: 'Кадр с нашей встречи' },
     subtitle: { en: 'Until our next date 💖', ru: 'До нашей следующей встречи 💖' },
@@ -177,8 +180,13 @@ const CoupleGallery: React.FC = () => {
                 src={currentPhoto}
                 alt=""
                 onError={() => setImgError(true)}
-                onClick={() => setIsLightboxOpen(true)}
-                className="w-full h-full object-cover cursor-pointer transition-transform duration-500 group-hover:scale-105"
+                onClick={() => !isSafeMode && setIsLightboxOpen(true)}
+                className={cn(
+                  "w-full h-full object-cover transition-all duration-500",
+                  isSafeMode
+                    ? "blur-2xl scale-110 filter brightness-90 contrast-75 select-none pointer-events-none"
+                    : "cursor-pointer group-hover:scale-105"
+                )}
               />
             ) : (
               <div
@@ -192,8 +200,8 @@ const CoupleGallery: React.FC = () => {
               </div>
             )}
 
-            {/* Click to enlarge overlay hint */}
-            {currentPhoto && !imgError && (
+            {/* Click to enlarge overlay hint (only when safe mode is OFF) */}
+            {currentPhoto && !imgError && !isSafeMode && (
               <div
                 onClick={() => setIsLightboxOpen(true)}
                 className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer pointer-events-auto"
@@ -201,6 +209,16 @@ const CoupleGallery: React.FC = () => {
                 <span className="bg-black/60 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-1.5">
                   <Sparkles size={14} />
                   {lang === 'ru' ? 'Нажми для просмотра' : 'Click to view'}
+                </span>
+              </div>
+            )}
+
+            {/* Safe mode privacy badge overlay */}
+            {currentPhoto && !imgError && isSafeMode && (
+              <div className="absolute inset-0 bg-background/30 backdrop-blur-sm flex items-center justify-center pointer-events-none z-10">
+                <span className="bg-card/90 backdrop-blur-md text-foreground text-xs font-black px-3.5 py-2 rounded-2xl border-[3px] border-border flex items-center gap-2 shadow-md">
+                  <EyeOff size={16} className="text-amber-500" />
+                  <span>{lang === 'ru' ? 'Фото скрыто' : 'Photo Hidden'}</span>
                 </span>
               </div>
             )}

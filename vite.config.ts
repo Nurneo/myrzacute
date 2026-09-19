@@ -14,6 +14,9 @@ export default defineConfig(() => ({
     },
   },
   build: {
+    target: "esnext",
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -26,6 +29,9 @@ export default defineConfig(() => ({
             }
             if (id.includes("lucide-react")) {
               return "vendor-lucide";
+            }
+            if (id.includes("@radix-ui")) {
+              return "vendor-ui";
             }
             return "vendor-others";
           }

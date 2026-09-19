@@ -3,11 +3,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PageContainer from '@/components/layout/PageContainer';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Heart, Flame, Quote, Sun, Moon, Globe, Sparkles } from 'lucide-react';
+import { Calendar, Heart, Flame, Quote, Sun, Moon, Globe, Sparkles, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { dailyMessages } from '@/content/dailyMessages';
 import { format } from 'date-fns';
 import { useLang } from '@/context/LanguageContext';
+import { useSafeMode } from '@/context/SafeModeContext';
+import PrivacyTextMask from '@/components/PrivacyTextMask';
 import { translations, t } from '@/content/translations';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
@@ -62,6 +64,7 @@ const Home = () => {
   const navigate = useNavigate();
   const { lang, setLang } = useLang();
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const { isSafeMode, toggleSafeMode } = useSafeMode();
 
   // Listen to keystrokes to redirect on passcode
   useEffect(() => {
@@ -249,31 +252,54 @@ const Home = () => {
           <h2 className="text-2xl font-black text-foreground tracking-tight">{t(tr.exploreTitle, lang)}</h2>
           <p className="text-muted-foreground text-xs sm:text-sm mt-0.5">{t(tr.exploreSubtitle, lang)}</p>
         </div>
-        <button
-          onClick={() => setIsFeedbackOpen(true)}
-          className={cn(
-            "w-12 h-12 rounded-2xl bg-card border-[3px] border-border text-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm hover:bg-primary/10",
-            selectedMood && "bg-primary text-primary-foreground border-primary"
-          )}
-          title={t(translations.home.feedback.title, lang)}
-        >
-          {selectedMood ? (
-            moodImgError ? (
-              <span className="select-none">🦁</span>
+        <div className="flex items-center gap-2">
+          {/* Privacy / Safe Mode Toggle Button */}
+          <button
+            onClick={toggleSafeMode}
+            className={cn(
+              "w-12 h-12 rounded-2xl bg-card border-[3px] border-border flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm text-foreground hover:bg-primary/10",
+              isSafeMode && "bg-amber-500/15 border-amber-500 text-amber-600 dark:text-amber-400"
+            )}
+            title={
+              isSafeMode
+                ? lang === 'ru'
+                  ? 'Скрытый режим включен (нажмите для показа)'
+                  : 'Privacy Mode Active (click to reveal)'
+                : lang === 'ru'
+                ? 'Включить скрытый режим'
+                : 'Enable Privacy Mode'
+            }
+          >
+            {isSafeMode ? <EyeOff size={22} /> : <Eye size={22} />}
+          </button>
+
+          {/* Moodmeter Lion Button */}
+          <button
+            onClick={() => setIsFeedbackOpen(true)}
+            className={cn(
+              "w-12 h-12 rounded-2xl bg-card border-[3px] border-border text-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm hover:bg-primary/10",
+              selectedMood && "bg-primary text-primary-foreground border-primary"
+            )}
+            title={t(translations.home.feedback.title, lang)}
+          >
+            {selectedMood ? (
+              moodImgError ? (
+                <span className="select-none">🦁</span>
+              ) : (
+                <img
+                  src={`/moods/mood${selectedMood}.svg`}
+                  alt="Current Mood"
+                  className="w-8 h-8 object-contain"
+                  loading="lazy"
+                  decoding="async"
+                  onError={() => setMoodImgError(true)}
+                />
+              )
             ) : (
-              <img
-                src={`/moods/mood${selectedMood}.svg`}
-                alt="Current Mood"
-                className="w-8 h-8 object-contain"
-                loading="lazy"
-                decoding="async"
-                onError={() => setMoodImgError(true)}
-              />
-            )
-          ) : (
-            <span className="select-none">🦁</span>
-          )}
-        </button>
+              <span className="select-none">🦁</span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* ── Daily Message ── */}
@@ -289,7 +315,7 @@ const Home = () => {
             {t(tr.messageDayLabel, lang)}
           </p>
           <p className="text-lg sm:text-xl font-medium text-foreground leading-relaxed italic">
-            &ldquo;{messageOfTheDay}&rdquo;
+            &ldquo;<PrivacyTextMask textLength={messageOfTheDay.length}>{messageOfTheDay}</PrivacyTextMask>&rdquo;
           </p>
         </div>
       </div>
@@ -306,7 +332,7 @@ const Home = () => {
               animationFillMode: 'both',
             }}
           >
-            <Card className="overflow-hidden border-[3px] border-border shadow-sm hover:shadow-md hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,235,175,0.12)] transition-all cursor-pointer group active:scale-[0.98]">
+            <Card className="overflow-hidden border-[3px] border-border shadow-sm hover:shadow-md hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,235,175,0.12)] card-smooth gpu-accelerate cursor-pointer group active:scale-[0.98]">
               <CardContent className="p-5 flex items-center gap-4">
                 <div className={`p-3 rounded-2xl ${feature.color} group-hover:scale-110 transition-transform`}>
                   <feature.icon size={22} />

@@ -51,9 +51,9 @@ const RouteFallback = () => (
   </div>
 );
 
-const SPLASH_VISIBLE_MS = 1000;
-const SPLASH_TEXT_EXIT_MS = 300;
-const SPLASH_BG_EXIT_MS = 600;
+const SPLASH_VISIBLE_MS = 220;
+const SPLASH_TEXT_EXIT_MS = 120;
+const SPLASH_BG_EXIT_MS = 220;
 
 import ErrorBoundary from "@/components/ErrorBoundary";
 
@@ -103,18 +103,22 @@ const AppContent = () => {
   );
 };
 
+import { SafeModeProvider } from "@/context/SafeModeContext";
+
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light">
     <LanguageProvider>
-      <NotificationManager>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
-        </TooltipProvider>
-      </NotificationManager>
+      <SafeModeProvider>
+        <NotificationManager>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </TooltipProvider>
+        </NotificationManager>
+      </SafeModeProvider>
     </LanguageProvider>
   </ThemeProvider>
 );

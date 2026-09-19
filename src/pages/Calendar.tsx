@@ -5,6 +5,7 @@ import { ru } from 'date-fns/locale';
 import { Heart, Lock, Unlock, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { dailyMessages } from '@/content';
 import { useLang } from '@/context/LanguageContext';
+import PrivacyTextMask from '@/components/PrivacyTextMask';
 import { translations, t } from '@/content/translations';
 import { cn } from '@/lib/utils';
 import FeedbackModal from '@/components/FeedbackModal';
@@ -350,12 +351,14 @@ const CalendarPage = () => {
                   <div className="w-full mt-1 space-y-2">
                     <div className="flex items-center justify-center gap-1.5">
                       <Sparkles size={13} className="text-primary" />
-                      <span className="font-black text-base text-primary">{dailyContent.title}</span>
+                      <span className="font-black text-base text-primary">
+                        <PrivacyTextMask textLength={dailyContent.title.length}>{dailyContent.title}</PrivacyTextMask>
+                      </span>
                       <Sparkles size={13} className="text-primary" />
                     </div>
                     <div className="bg-primary/10 border-[3px] border-border rounded-2xl p-4">
                       <p className="text-sm text-foreground font-medium leading-relaxed text-center">
-                        &ldquo;{dailyContent.message}&rdquo;
+                        &ldquo;<PrivacyTextMask textLength={dailyContent.message.length}>{dailyContent.message}</PrivacyTextMask>&rdquo;
                       </p>
                     </div>
                   </div>
@@ -490,7 +493,7 @@ const CalendarPage = () => {
                       ) : dayNote ? (
                         <div className="bg-primary/5 border-[3px] border-border border-dashed rounded-2xl p-4">
                           <p className="text-sm text-foreground font-medium leading-relaxed italic text-center">
-                            &ldquo;{dayNote}&rdquo;
+                            &ldquo;<PrivacyTextMask textLength={dayNote.length}>{dayNote}</PrivacyTextMask>&rdquo;
                           </p>
                         </div>
                       ) : (
