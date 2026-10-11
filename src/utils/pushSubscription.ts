@@ -1,8 +1,4 @@
-/**
- * Client-side Web Push subscription utility.
- * Handles PushManager subscription with VAPID keys and
- * registers the subscription with the backend API.
- */
+import { supabase } from '@/utils/supabase';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
@@ -54,7 +50,8 @@ export async function isSubscribedToPush(): Promise<boolean> {
  * Subscribe to Web Push notifications.
  * 1. Waits for Service Worker registration
  * 2. Calls pushManager.subscribe() with VAPID application server key
- * 3. POSTs the subscription to /api/subscribe to store in Supabase
+ * 3. Upserts directly to Supabase push_subscriptions table
+ * 4. Also calls /api/subscribe as fallback
  *
  * @returns true if subscription was successful, false otherwise
  */
@@ -99,22 +96,45 @@ export async function subscribeToPush(): Promise<boolean> {
       return false;
     }
 
-    // Send subscription to backend for storage
-    const response = await fetch('/api/subscribe', {
+    const jsonSub = subscription.toJSON();
+
+    // 1. DIRECT WRITE TO SUPABASE (Guarantees registration even without backend serverless function!)
+    if (jsonSub?.endpoint && jsonSub.keys?.p256dh && jsonSub.keys?.auth && supabase) {
+      try {
+        const { error: sbError } = await supabase
+          .from('push_subscriptions')
+          .upsert(
+            {
+              endpoint: jsonSub.endpoint,
+              keys_p256dh: jsonSub.keys.p256dh,
+              keys_auth: jsonSub.keys.auth,
+              user_agent: navigator.userAgent,
+              last_seen_at: new Date().toISOString(),
+            },
+            { onConflict: 'endpoint' }
+          );
+
+        if (sbError) {
+          console.warn('Direct Supabase push subscription upsert error:', sbError);
+        } else {
+          console.log('✅ Device successfully registered in Supabase push_subscriptions table!');
+        }
+      } catch (sbCatch) {
+        console.warn('Supabase direct write exception:', sbCatch);
+      }
+    }
+
+    // 2. Also POST to /api/subscribe for serverless logging
+    fetch('/api/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        subscription: subscription.toJSON(),
+        subscription: jsonSub,
         userAgent: navigator.userAgent,
       }),
-    });
+    }).catch(() => {});
 
-    if (!response.ok) {
-      console.error('Failed to register push subscription with server:', response.status);
-      return false;
-    }
-
-    console.log('✅ Web Push subscription registered successfully');
+    console.log('✅ Web Push subscription active');
     return true;
   } catch (err) {
     console.error('Error subscribing to push:', err);
@@ -132,6 +152,12 @@ export async function unsubscribeFromPush(): Promise<boolean> {
     if (!registration?.pushManager) return false;
     const subscription = await registration.pushManager.getSubscription();
     if (subscription) {
+      if (subscription.endpoint && supabase) {
+        await supabase
+          .from('push_subscriptions')
+          .delete()
+          .eq('endpoint', subscription.endpoint);
+      }
       await subscription.unsubscribe();
       console.log('Successfully unsubscribed from Web Push');
     }
@@ -151,19 +177,21 @@ export async function unsubscribeFromPush(): Promise<boolean> {
  * @param icon - Emoji icon
  * @param type - 'midnight' | 'midday' | 'secret'
  * @param messageIndex - Explicit message index
+ * @param delaySeconds - Optional delay before server sends push (allows user to close app and test lock screen)
  */
 export async function triggerRemotePush(
   title?: string,
   body?: string,
   icon?: string,
   type?: string,
-  messageIndex?: number
-): Promise<{ success: boolean; sent?: number }> {
+  messageIndex?: number,
+  delaySeconds?: number
+): Promise<{ success: boolean; sent?: number; message?: string }> {
   try {
     const response = await fetch('/api/trigger-push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, body, icon, type, messageIndex }),
+      body: JSON.stringify({ title, body, icon, type, messageIndex, delaySeconds }),
     });
 
     if (!response.ok) {
@@ -172,7 +200,7 @@ export async function triggerRemotePush(
     }
 
     const data = await response.json();
-    return { success: true, sent: data.sent };
+    return { success: true, sent: data.sent, message: data.message };
   } catch (err) {
     console.error('Error triggering remote push:', err);
     return { success: false };

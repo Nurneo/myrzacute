@@ -41,7 +41,10 @@ export default async (req: Request) => {
       bodyData = {};
     }
 
-    const { title, body, icon, type, messageIndex } = bodyData;
+    const { title, body, icon, type, messageIndex, delaySeconds } = bodyData;
+    if (typeof delaySeconds === 'number' && delaySeconds > 0) {
+      await new Promise((resolve) => setTimeout(resolve, Math.min(delaySeconds, 15) * 1000));
+    }
     const pushType = type || 'secret';
     const message = getPushMessage(pushType, messageIndex);
 

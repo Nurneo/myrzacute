@@ -15,8 +15,9 @@ import {
   isIOS,
   isStandalone,
 } from '@/utils/notifications';
-import { subscribeToPush, unsubscribeFromPush } from '@/utils/pushSubscription';
+import { subscribeToPush, unsubscribeFromPush, triggerRemotePush } from '@/utils/pushSubscription';
 import IOSInstallGuideModal from './IOSInstallGuideModal';
+import { toast } from 'sonner';
 
 interface NotificationCenterModalProps {
   isOpen: boolean;
@@ -206,10 +207,32 @@ const NotificationCenterModal: React.FC<NotificationCenterModalProps> = ({
               onClose();
               onTriggerTestNotification();
             }}
-            className="w-full py-3 px-4 rounded-2xl border-[2px] border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
+            className="w-full py-3 px-4 rounded-2xl border-[2px] border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary font-bold flex items-center justify-center gap-2 transition-all active:scale-95 text-xs"
           >
-            <Send size={16} />
+            <Send size={15} />
             {t(tr.testBtn, lang)}
+          </button>
+
+          {/* Test Background Push (5 seconds delay) */}
+          <button
+            onClick={async () => {
+              if (isIOS() && !isStandalone()) {
+                setShowIOSModal(true);
+                return;
+              }
+              onClose();
+              toast.info(
+                lang === 'ru'
+                  ? '⏳ Отправка через 5 сек! Сверните приложение и заблокируйте телефон прямо сейчас!'
+                  : '⏳ Sending in 5s! Close app and lock your screen right now!',
+                { duration: 5000 }
+              );
+              await triggerRemotePush(undefined, undefined, undefined, 'secret', undefined, 5);
+            }}
+            className="w-full py-3 px-4 rounded-2xl border-[2px] border-indigo-500/40 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-500 dark:text-indigo-400 font-bold flex items-center justify-center gap-2 transition-all active:scale-95 text-xs"
+          >
+            <Clock size={15} />
+            {lang === 'ru' ? '⏰ Проверить при закрытом приложении (через 5 сек)' : '⏰ Test Background Push (in 5s)'}
           </button>
 
           {/* Notification History Header */}

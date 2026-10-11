@@ -35,7 +35,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
 
     // Get notification content
-    const { title, body, icon, type, messageIndex } = req.body || {};
+    const { title, body, icon, type, messageIndex, delaySeconds } = req.body || {};
+    if (typeof delaySeconds === 'number' && delaySeconds > 0) {
+      await new Promise((resolve) => setTimeout(resolve, Math.min(delaySeconds, 15) * 1000));
+    }
     const pushType = type || 'secret';
     const message = getPushMessage(pushType, messageIndex);
 
