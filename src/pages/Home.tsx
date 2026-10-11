@@ -201,7 +201,8 @@ const Home = () => {
   ];
 
   return (
-    <PageContainer>
+    <>
+      <PageContainer>
       {/* ── Top Header with Compact Theme & Language Switches ── */}
       <header className="mb-6 flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
         <div>
@@ -441,14 +442,13 @@ const Home = () => {
         }} 
       />
 
+      </PageContainer>
+
       <NotificationCenterModal
         isOpen={isNotificationCenterOpen}
         onClose={() => setIsNotificationCenterOpen(false)}
-        onTriggerTestNotification={() => {
-          broadcastNotification(undefined, undefined, undefined, 'secret');
-        }}
       />
-    </PageContainer>
+    </>
   );
 };
 

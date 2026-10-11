@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Share, PlusSquare, Sparkles, X, Smartphone, ShieldCheck } from 'lucide-react';
 import { useLang } from '@/context/LanguageContext';
 
@@ -9,14 +10,30 @@ interface IOSInstallGuideModalProps {
 
 const IOSInstallGuideModal: React.FC<IOSInstallGuideModalProps> = ({ isOpen, onClose }) => {
   const { lang } = useLang();
-  if (!isOpen) return null;
+
+  useEffect(() => {
+    if (isOpen && typeof document !== 'undefined') {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [isOpen]);
+
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const isSecure = typeof window !== 'undefined' && window.isSecureContext;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="relative w-full max-w-md bg-card border-[3px] border-border rounded-3xl p-6 sm:p-7 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
-        
+  return createPortal(
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-md bg-card border-[3px] border-border rounded-3xl p-6 sm:p-7 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200"
+      >
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
           <div className="flex items-center gap-3">
@@ -115,7 +132,8 @@ const IOSInstallGuideModal: React.FC<IOSInstallGuideModalProps> = ({ isOpen, onC
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

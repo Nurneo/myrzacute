@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import PageContainer from '@/components/layout/PageContainer';
 import { useLang } from '@/context/LanguageContext';
 import { translations, t } from '@/content/translations';
-import { Heart, Lock, Delete, ArrowLeft, Bell } from 'lucide-react';
+import { Heart, Lock, Delete, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import FallingItems from '@/components/FallingItems';
 import HeartExplosion from '@/components/HeartExplosion';
@@ -100,39 +100,6 @@ const SecretPage = () => {
     return current;
   };
 
-  const handleBellClick = async () => {
-    if (isIOS() && !isStandalone()) {
-      setShowIOSModal(true);
-      return;
-    }
-
-    if (!isNotificationSupported()) {
-      toast.error(
-        lang === 'ru'
-          ? 'Ваше устройство не поддерживает веб-уведомления ❌'
-          : 'Your device does not support web notifications ❌'
-      );
-      return;
-    }
-
-    const granted = await requestNotificationPermission();
-    if (granted) {
-      const idx = getNextPasscodeIndex();
-      const content = getNotificationMessage('secret', undefined, lang, idx);
-      toast.success(
-        lang === 'ru'
-          ? `Секретное уведомление #${idx + 1} отправлено! 🔔`
-          : `Secret notification #${idx + 1} sent! 🔔`
-      );
-      broadcastNotification(content.title, content.message, content.icon, 'secret', idx);
-    } else {
-      toast.error(
-        lang === 'ru'
-          ? 'Уведомления заблокированы! Разрешите их в настройках браузера 🚫'
-          : 'Notifications blocked! Please enable them in browser settings 🚫'
-      );
-    }
-  };
 
   // Unlocked states for each letter
   const [isUnlocked1, setIsUnlocked1] = useState(false);
@@ -418,13 +385,7 @@ const SecretPage = () => {
                 </p>
               </div>
 
-              <button
-                onClick={handleBellClick}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-card border-[3px] border-border shadow-sm hover:bg-primary/10 transition-all active:scale-90 text-primary"
-                title={lang === 'ru' ? 'Включить и проверить уведомления 🔔' : 'Enable & test notifications 🔔'}
-              >
-                <Bell size={20} />
-              </button>
+              <div className="w-10 h-10" />
             </div>
 
             {/* Selection Grid (Always shows Sealed envelopes initially) */}
@@ -493,13 +454,7 @@ const SecretPage = () => {
                 <ArrowLeft size={20} className="text-primary dark:text-foreground" />
               </button>
               
-              <button
-                onClick={handleBellClick}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-white dark:bg-card border-[3px] border-border shadow-sm hover:bg-primary/10 transition-all active:scale-90 text-primary"
-                title={lang === 'ru' ? 'Включить и проверить уведомления 🔔' : 'Enable & test notifications 🔔'}
-              >
-                <Bell size={20} />
-              </button>
+              <div className="w-10 h-10" />
             </div>
 
             {/* Letter Envelope Area */}

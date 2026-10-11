@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Bell, Check, AlertCircle, X } from 'lucide-react';
 import { useLang } from '@/context/LanguageContext';
 import { translations, t } from '@/content/translations';
@@ -39,7 +40,18 @@ const NotificationCenterModal: React.FC<NotificationCenterModalProps> = ({
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  // Lock body scroll so page behind doesn't shift while open
+  useEffect(() => {
+    if (isOpen && typeof document !== 'undefined') {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [isOpen]);
+
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const handleToggleEnable = async () => {
     if (isIOS() && !isStandalone()) {
@@ -74,14 +86,14 @@ const NotificationCenterModal: React.FC<NotificationCenterModalProps> = ({
     }
   };
 
-  return (
+  return createPortal(
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-[360px] bg-card border-[3px] border-border rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200 select-none"
+        className="relative w-full max-w-[340px] bg-card border-[3px] border-border rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200 select-none"
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-border">
@@ -156,7 +168,8 @@ const NotificationCenterModal: React.FC<NotificationCenterModalProps> = ({
 
       {/* iOS Safari Home Screen Guide */}
       <IOSInstallGuideModal isOpen={showIOSModal} onClose={() => setShowIOSModal(false)} />
-    </div>
+    </div>,
+    document.body
   );
 };
 
