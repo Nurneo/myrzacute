@@ -27,7 +27,9 @@ export function isPushSupported(): boolean {
   return (
     typeof window !== 'undefined' &&
     'serviceWorker' in navigator &&
-    'PushManager' in window &&
+    ('PushManager' in window ||
+      (typeof ServiceWorkerRegistration !== 'undefined' &&
+        'pushManager' in ServiceWorkerRegistration.prototype)) &&
     !!VAPID_PUBLIC_KEY
   );
 }
@@ -39,6 +41,7 @@ export async function isSubscribedToPush(): Promise<boolean> {
   if (!isPushSupported()) return false;
   try {
     const registration = await navigator.serviceWorker.ready;
+    if (!registration?.pushManager) return false;
     const subscription = await registration.pushManager.getSubscription();
     return !!subscription;
   } catch (err) {
@@ -64,6 +67,10 @@ export async function subscribeToPush(): Promise<boolean> {
   try {
     // Wait for service worker to be ready
     const registration = await navigator.serviceWorker.ready;
+    if (!registration?.pushManager) {
+      console.warn('pushManager is not available on ServiceWorkerRegistration (on iOS, app must be added to Home Screen first)');
+      return false;
+    }
 
     // Check if already subscribed
     let subscription = await registration.pushManager.getSubscription();
@@ -122,6 +129,7 @@ export async function unsubscribeFromPush(): Promise<boolean> {
   if (!isPushSupported()) return false;
   try {
     const registration = await navigator.serviceWorker.ready;
+    if (!registration?.pushManager) return false;
     const subscription = await registration.pushManager.getSubscription();
     if (subscription) {
       await subscription.unsubscribe();

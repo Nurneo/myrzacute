@@ -17,12 +17,35 @@ export interface NotificationHistoryItem {
   read: boolean;
 }
 
+export function isIOS(): boolean {
+  if (typeof window === 'undefined') return false;
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+}
+
+export function isStandalone(): boolean {
+  if (typeof window === 'undefined') return false;
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (window.navigator as any).standalone === true
+  );
+}
+
 export function isNotificationSupported(): boolean {
-  return typeof window !== 'undefined' && 'Notification' in window;
+  if (typeof window === 'undefined') return false;
+  return (
+    'Notification' in window ||
+    ('serviceWorker' in navigator &&
+      typeof ServiceWorkerRegistration !== 'undefined' &&
+      'showNotification' in ServiceWorkerRegistration.prototype)
+  );
 }
 
 export function getNotificationPermission(): NotificationPermission | 'unsupported' {
   if (!isNotificationSupported()) return 'unsupported';
+  if (typeof Notification === 'undefined') return 'default';
   return Notification.permission;
 }
 
@@ -40,7 +63,10 @@ export function setNotificationsEnabled(enabled: boolean): void {
 export async function requestNotificationPermission(): Promise<boolean> {
   if (!isNotificationSupported()) return false;
   try {
-    const permission = await Notification.requestPermission();
+    let permission: NotificationPermission = 'default';
+    if ('Notification' in window && typeof Notification.requestPermission === 'function') {
+      permission = await Notification.requestPermission();
+    }
     if (permission === 'granted') {
       setNotificationsEnabled(true);
       subscribeToPush().catch((err) => console.warn('Automatic push subscription failed:', err));
@@ -61,26 +87,35 @@ export async function showNativeNotification(title: string, body: string, icon =
 
   if (!isNotificationSupported()) return false;
 
-  // Do NOT auto-request permission here as background timers will trigger browser security blocks.
   // Native notifications will only fire if permission is already granted by user interaction.
-  if (Notification.permission !== 'granted') return false;
+  if (typeof Notification !== 'undefined' && Notification.permission !== 'granted') return false;
 
   // 1. Try Service Worker registration showNotification (Required for iOS Safari / Android PWA)
   try {
     if ('serviceWorker' in navigator) {
-      const reg = await Promise.race([
-        navigator.serviceWorker.ready,
-        new Promise<ServiceWorkerRegistration | null>((resolve) => setTimeout(() => resolve(null), 500)),
-      ]);
+      let reg: ServiceWorkerRegistration | undefined;
+      try {
+        reg = await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise<undefined>((_, reject) => setTimeout(() => reject(new Error('timeout')), 2500)),
+        ]);
+      } catch {
+        reg = await navigator.serviceWorker.getRegistration();
+      }
 
-      if (reg && reg.showNotification) {
-        await reg.showNotification(title, {
+      if (reg && typeof reg.showNotification === 'function') {
+        const notifOptions: any = {
           body,
-          icon: '/favicon.ico',
-          badge: '/favicon.ico',
+          icon: '/icons/icon-192.png',
+          badge: '/icons/icon-192.png',
           tag: `myrzacute-${Date.now()}`,
-          vibrate: [200, 100, 200, 100, 200],
-        } as NotificationOptions);
+        };
+        // Avoid crash on iOS where Vibration API is not supported
+        if ('vibrate' in navigator) {
+          notifOptions.vibrate = [200, 100, 200, 100, 200];
+        }
+
+        await reg.showNotification(title, notifOptions);
         return true;
       }
     }
@@ -88,19 +123,22 @@ export async function showNativeNotification(title: string, body: string, icon =
     console.warn('Service worker showNotification failed:', err);
   }
 
-  // 2. Fallback for Desktop browsers supporting classic constructor
+  // 2. Fallback for Desktop browsers supporting classic constructor (throws on iOS Safari)
   try {
-    new Notification(title, {
-      body,
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
-      tag: `myrzacute-${Date.now()}`,
-    });
-    return true;
+    if (typeof Notification === 'function') {
+      new Notification(title, {
+        body,
+        icon: '/icons/icon-192.png',
+        badge: '/icons/icon-192.png',
+        tag: `myrzacute-${Date.now()}`,
+      });
+      return true;
+    }
   } catch (e) {
     console.warn('Native notification fallback failed:', e);
-    return false;
   }
+
+  return false;
 }
 
 export function scheduleSWBackgroundSlot(title: string, message: string, targetTimeMs: number): void {

@@ -12,8 +12,11 @@ import {
   markAllNotificationsAsRead,
   NotificationHistoryItem,
   isNotificationSupported,
+  isIOS,
+  isStandalone,
 } from '@/utils/notifications';
 import { subscribeToPush, unsubscribeFromPush } from '@/utils/pushSubscription';
+import IOSInstallGuideModal from './IOSInstallGuideModal';
 
 interface NotificationCenterModalProps {
   isOpen: boolean;
@@ -33,6 +36,7 @@ const NotificationCenterModal: React.FC<NotificationCenterModalProps> = ({
   const [enabled, setEnabled] = useState(() => getNotificationsEnabled());
   const [permission, setPermission] = useState(() => getNotificationPermission());
   const [history, setHistory] = useState<NotificationHistoryItem[]>([]);
+  const [showIOSModal, setShowIOSModal] = useState(false);
 
   // Update history & mark as read when modal opens
   useEffect(() => {
@@ -55,6 +59,11 @@ const NotificationCenterModal: React.FC<NotificationCenterModalProps> = ({
   if (!isOpen) return null;
 
   const handleToggleEnable = async () => {
+    if (isIOS() && !isStandalone()) {
+      setShowIOSModal(true);
+      return;
+    }
+
     const nextState = !enabled;
     setEnabled(nextState);
     setNotificationsEnabled(nextState);
@@ -249,6 +258,9 @@ const NotificationCenterModal: React.FC<NotificationCenterModalProps> = ({
         </div>
 
       </div>
+
+      {/* iOS Safari Home Screen Guide */}
+      <IOSInstallGuideModal isOpen={showIOSModal} onClose={() => setShowIOSModal(false)} />
     </div>
   );
 };

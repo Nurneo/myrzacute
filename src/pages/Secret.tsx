@@ -20,7 +20,10 @@ import {
   isNotificationSupported,
   requestNotificationPermission,
   showNativeNotification,
+  isIOS,
+  isStandalone,
 } from '@/utils/notifications';
+import IOSInstallGuideModal from '@/components/IOSInstallGuideModal';
 import { getNotificationMessage } from '@/content/notificationMessages';
 
 const PASSCODE_1 = "260626";
@@ -87,6 +90,7 @@ const SecretPage = () => {
   const tr = translations.secret;
 
   const location = useLocation();
+  const [showIOSModal, setShowIOSModal] = useState(false);
 
   const getNextPasscodeIndex = (): number => {
     const current = parseInt(localStorage.getItem('myrzacute_secret_notif_index') || '0', 10);
@@ -96,6 +100,11 @@ const SecretPage = () => {
   };
 
   const handleBellClick = async () => {
+    if (isIOS() && !isStandalone()) {
+      setShowIOSModal(true);
+      return;
+    }
+
     if (!isNotificationSupported()) {
       toast.error(
         lang === 'ru'
@@ -686,6 +695,9 @@ const SecretPage = () => {
           onComplete={() => setShowExplosion(false)} 
         />
       )}
+
+      {/* iOS Safari Home Screen Guide */}
+      <IOSInstallGuideModal isOpen={showIOSModal} onClose={() => setShowIOSModal(false)} />
     </div>
   );
 };
