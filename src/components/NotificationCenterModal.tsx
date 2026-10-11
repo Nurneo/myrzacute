@@ -13,6 +13,7 @@ import {
   NotificationHistoryItem,
   isNotificationSupported,
 } from '@/utils/notifications';
+import { subscribeToPush, unsubscribeFromPush } from '@/utils/pushSubscription';
 
 interface NotificationCenterModalProps {
   isOpen: boolean;
@@ -58,12 +59,16 @@ const NotificationCenterModal: React.FC<NotificationCenterModalProps> = ({
     setEnabled(nextState);
     setNotificationsEnabled(nextState);
 
-    if (nextState && isNotificationSupported() && permission === 'default') {
-      const granted = await requestNotificationPermission();
-      setPermission(getNotificationPermission());
-      if (!granted) {
-        // user declined or blocked
+    if (nextState) {
+      if (isNotificationSupported()) {
+        const granted = await requestNotificationPermission();
+        setPermission(getNotificationPermission());
+        if (granted) {
+          await subscribeToPush();
+        }
       }
+    } else {
+      await unsubscribeFromPush();
     }
   };
 

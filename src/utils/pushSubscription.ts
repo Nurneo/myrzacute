@@ -33,6 +33,21 @@ export function isPushSupported(): boolean {
 }
 
 /**
+ * Check if the browser currently has an active PushManager subscription.
+ */
+export async function isSubscribedToPush(): Promise<boolean> {
+  if (!isPushSupported()) return false;
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    return !!subscription;
+  } catch (err) {
+    console.warn('Error checking push subscription status:', err);
+    return false;
+  }
+}
+
+/**
  * Subscribe to Web Push notifications.
  * 1. Waits for Service Worker registration
  * 2. Calls pushManager.subscribe() with VAPID application server key
@@ -54,11 +69,27 @@ export async function subscribeToPush(): Promise<boolean> {
     let subscription = await registration.pushManager.getSubscription();
 
     if (!subscription) {
-      // Subscribe with VAPID key
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-      });
+      try {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+      } catch (subErr) {
+        // If failed (e.g. key mismatch from previous test), attempt clean resubscribe
+        console.warn('Initial pushManager.subscribe failed, attempting reset:', subErr);
+        const existing = await registration.pushManager.getSubscription();
+        if (existing) {
+          await existing.unsubscribe();
+        }
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+      }
+    }
+
+    if (!subscription) {
+      return false;
     }
 
     // Send subscription to backend for storage
@@ -72,7 +103,7 @@ export async function subscribeToPush(): Promise<boolean> {
     });
 
     if (!response.ok) {
-      console.error('Failed to register push subscription with server');
+      console.error('Failed to register push subscription with server:', response.status);
       return false;
     }
 
@@ -80,6 +111,25 @@ export async function subscribeToPush(): Promise<boolean> {
     return true;
   } catch (err) {
     console.error('Error subscribing to push:', err);
+    return false;
+  }
+}
+
+/**
+ * Unsubscribe from Web Push notifications.
+ */
+export async function unsubscribeFromPush(): Promise<boolean> {
+  if (!isPushSupported()) return false;
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    if (subscription) {
+      await subscription.unsubscribe();
+      console.log('Successfully unsubscribed from Web Push');
+    }
+    return true;
+  } catch (err) {
+    console.error('Error unsubscribing from push:', err);
     return false;
   }
 }

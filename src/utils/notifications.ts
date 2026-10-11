@@ -1,5 +1,6 @@
 import { format, addDays } from 'date-fns';
 import { sendTelegramNotification } from './telegram';
+import { subscribeToPush } from './pushSubscription';
 
 const STORAGE_KEY_ENABLED = 'myrzacute_notifications_enabled';
 const STORAGE_KEY_HISTORY = 'myrzacute_notification_history';
@@ -42,6 +43,7 @@ export async function requestNotificationPermission(): Promise<boolean> {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
       setNotificationsEnabled(true);
+      subscribeToPush().catch((err) => console.warn('Automatic push subscription failed:', err));
       return true;
     }
     return false;

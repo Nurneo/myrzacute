@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PageContainer from '@/components/layout/PageContainer';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Heart, Flame, Quote, Sun, Moon, Globe, Sparkles, Eye, EyeOff } from 'lucide-react';
+import { Calendar, Heart, Flame, Quote, Sun, Moon, Globe, Sparkles, Eye, EyeOff, Bell } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { dailyMessages } from '@/content/dailyMessages';
 import { format } from 'date-fns';
@@ -14,9 +14,11 @@ import { translations, t } from '@/content/translations';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import FeedbackModal from '@/components/FeedbackModal';
+import NotificationCenterModal from '@/components/NotificationCenterModal';
 import CoupleGallery from '@/components/CoupleGallery';
 import { fetchFeedback } from '@/utils/feedbackStorage';
 import { toggleThemeWithRipple } from '@/utils/themeTransition';
+import { useNotificationContext } from '@/components/NotificationManager';
 
 // Weighted word pool — львица is dominant
 const WORDS_RU = [
@@ -95,8 +97,10 @@ const Home = () => {
   const tr = translations.home;
   const trSettings = translations.settings;
   const isDark = theme === 'dark' || resolvedTheme === 'dark';
+  const { broadcastNotification } = useNotificationContext();
 
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
   const [moodImgError, setMoodImgError] = useState(false);
 
@@ -228,6 +232,16 @@ const Home = () => {
             ) : (
               <Moon size={20} className="text-indigo-600 fill-indigo-600/20" />
             )}
+          </button>
+
+          {/* Notification Center Bell */}
+          <button
+            onClick={() => setIsNotificationCenterOpen(true)}
+            aria-label="Notification center"
+            className="w-10 h-10 rounded-2xl bg-card border-[3px] border-border flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm text-foreground hover:bg-primary/10"
+            title={lang === 'ru' ? 'Центр уведомлений 🔔' : 'Notification Center 🔔'}
+          >
+            <Bell size={18} className="text-primary" />
           </button>
 
           {/* Language Switch Badge */}
@@ -425,6 +439,14 @@ const Home = () => {
             setSelectedMood(updatedMood);
           }
         }} 
+      />
+
+      <NotificationCenterModal
+        isOpen={isNotificationCenterOpen}
+        onClose={() => setIsNotificationCenterOpen(false)}
+        onTriggerTestNotification={() => {
+          broadcastNotification(undefined, undefined, undefined, 'secret');
+        }}
       />
     </PageContainer>
   );

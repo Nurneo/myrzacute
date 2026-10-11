@@ -13,6 +13,7 @@ import {
   getNextNotificationTarget,
   isWithinScheduledWindow,
 } from '@/utils/notifications';
+import { subscribeToPush, triggerRemotePush } from '@/utils/pushSubscription';
 import { supabase } from '@/utils/supabase';
 import CuteNotificationModal from './CuteNotificationModal';
 
@@ -97,6 +98,20 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
     [lang]
   );
 
+  // Auto-sync Web Push subscription on mount if permission already granted
+  useEffect(() => {
+    if (
+      typeof window !== 'undefined' &&
+      'Notification' in window &&
+      Notification.permission === 'granted' &&
+      getNotificationsEnabled()
+    ) {
+      subscribeToPush().catch((err) => {
+        console.warn('Background Web Push subscription sync failed:', err);
+      });
+    }
+  }, []);
+
   const broadcastNotification = useCallback(
     (
       customTitle?: string,
@@ -105,10 +120,10 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
       customType?: 'midnight' | 'midday' | 'secret',
       explicitIndex?: number
     ) => {
-      // First trigger locally on sender device
+      // 1. First trigger locally on sender device
       triggerNotification(customTitle, customMessage, customIcon, customType, explicitIndex);
 
-      // Broadcast payload to all other connected devices in real time via Supabase Realtime
+      // 2. Broadcast payload to all open devices in real time via Supabase Realtime
       if (supabase) {
         const channel = supabase.channel('global_notifications');
         channel.subscribe((status) => {
@@ -128,6 +143,11 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
           }
         });
       }
+
+      // 3. Send OS-level Web Push notification to ALL registered devices (closed tabs / locked screens)
+      triggerRemotePush(customTitle, customMessage, customIcon, customType, explicitIndex).catch((err) => {
+        console.warn('Remote Web Push dispatch error:', err);
+      });
     },
     [triggerNotification]
   );

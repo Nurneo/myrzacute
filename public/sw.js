@@ -1,4 +1,4 @@
-const CACHE_NAME = 'myrzacute-v6';
+const CACHE_NAME = 'myrzacute-v7';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -98,25 +98,34 @@ self.addEventListener('notificationclick', (event) => {
 self.addEventListener('push', (event) => {
   let title = 'Myrzacute 💖';
   let body = 'У вас новое милое сообщение!';
+  let targetUrl = '/';
   
   if (event.data) {
     try {
       const data = event.data.json();
       title = data.title || title;
       body = data.body || body;
+      targetUrl = data.url || '/';
     } catch (e) {
       body = event.data.text() || body;
     }
   }
 
+  const options = {
+    body,
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    tag: `myrzacute-push-${Date.now()}`,
+    vibrate: [200, 100, 200, 100, 200],
+    renotify: true,
+    data: {
+      url: targetUrl,
+      dateOfArrival: Date.now(),
+    },
+  };
+
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
-      tag: `myrzacute-push-${Date.now()}`,
-      vibrate: [200, 100, 200, 100, 200],
-    })
+    self.registration.showNotification(title, options)
   );
 });
 
