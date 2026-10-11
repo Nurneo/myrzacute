@@ -19,6 +19,7 @@ import { useNotificationContext } from '@/components/NotificationManager';
 import {
   isNotificationSupported,
   requestNotificationPermission,
+  getNotificationPermission,
   showNativeNotification,
   isIOS,
   isStandalone,
@@ -228,6 +229,53 @@ const SecretPage = () => {
 
 
 
+  // Global keyboard shortcut listener (e.g. typing 000000 or passcodes anywhere on the page)
+  useEffect(() => {
+    let buffer = '';
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (activePasscodeLetter !== null) return; // handled by keypad dialog
+      if (e.key >= '0' && e.key <= '9') {
+        buffer += e.key;
+        if (buffer.length > 6) {
+          buffer = buffer.slice(-6);
+        }
+        if (buffer === "000000") {
+          buffer = '';
+          if (isIOS() && !isStandalone()) {
+            setShowIOSModal(true);
+            return;
+          }
+          if (getNotificationPermission() === 'default') {
+            requestNotificationPermission().catch(() => {});
+          }
+          const idx = getNextPasscodeIndex();
+          const content = getNotificationMessage('secret', undefined, lang, idx);
+          toast.success(
+            lang === 'ru'
+              ? `Секретное уведомление #${idx + 1} отправлено! 💖`
+              : `Secret notification #${idx + 1} sent! 💖`
+          );
+          broadcastNotification(content.title, content.message, content.icon, 'secret', idx);
+        } else if (buffer === PASSCODE_1) {
+          buffer = '';
+          setIsUnlocked1(true);
+          setActiveLetterId(1);
+          setShowExplosion(true);
+        } else if (buffer === PASSCODE_2) {
+          buffer = '';
+          setIsUnlocked2(true);
+          setActiveLetterId(2);
+          setShowExplosion(true);
+        }
+      } else {
+        buffer = '';
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [activePasscodeLetter, lang, broadcastNotification]);
+
   // Keypad inputs listener
   useEffect(() => {
     if (activePasscodeLetter === null) return;
@@ -269,7 +317,12 @@ const SecretPage = () => {
             setShowExplosion(true);
           }, 400);
         } else if (nextPasscode === "000000") {
-          if (Notification.permission === 'default') {
+          if (isIOS() && !isStandalone()) {
+            setShowIOSModal(true);
+            setPasscode("");
+            return;
+          }
+          if (getNotificationPermission() === 'default') {
             requestNotificationPermission().catch(() => {});
           }
           const idx = getNextPasscodeIndex();
