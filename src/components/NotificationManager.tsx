@@ -63,12 +63,15 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
     ) => {
       const now = new Date();
       const slotInfo = getCurrentSlotInfo(now);
-      const type = customType || slotInfo.type;
-      const content = getNotificationMessage(type, slotInfo.dateStr, lang, explicitIndex);
+      // Use explicitly provided type; only fall back to time-based slot if nothing given
+      const type = customType ?? slotInfo.type;
+      const dateStr = slotInfo.dateStr;
+      const content = getNotificationMessage(type, dateStr, lang, explicitIndex);
 
       const title = customTitle || content.title;
       const message = customMessage || content.message;
       const icon = customIcon || content.icon;
+      // Secret messages render the in-app modal as 'midday' style (day-time warm colours)
       const modalType: 'midnight' | 'midday' = type === 'midnight' ? 'midnight' : 'midday';
 
       // Add to history
@@ -83,7 +86,7 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
         read: false,
       });
 
-      // Send native system alert & Telegram push
+      // Send native system alert
       showNativeNotification(title, message, icon);
 
       // Pop in-app cute modal
@@ -120,10 +123,13 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
       customType?: 'midnight' | 'midday' | 'secret',
       explicitIndex?: number
     ) => {
-      // 1. First trigger locally on sender device
-      triggerNotification(customTitle, customMessage, customIcon, customType, explicitIndex);
+      // Force secret type for manual triggers — only secret messages are active
+      const type: 'secret' = 'secret';
 
-      // 2. Broadcast payload to all open devices in real time via Supabase Realtime
+      // 1. Show locally on sender device (in-app modal + native alert)
+      triggerNotification(customTitle, customMessage, customIcon, type, explicitIndex);
+
+      // 2. Broadcast to all other OPEN devices via Supabase Realtime
       if (supabase) {
         const channel = supabase.channel('global_notifications');
         channel.subscribe((status) => {
@@ -135,7 +141,7 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
                 customTitle,
                 customMessage,
                 customIcon,
-                customType,
+                customType: type,
                 explicitIndex,
                 senderTime: Date.now(),
               },
@@ -144,10 +150,19 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
         });
       }
 
-      // 3. Send OS-level Web Push notification to ALL registered devices (closed tabs / locked screens)
-      triggerRemotePush(customTitle, customMessage, customIcon, customType, explicitIndex).catch((err) => {
-        console.warn('Remote Web Push dispatch error:', err);
-      });
+      // 3. Send OS-level Web Push to ALL registered devices (closed tabs / locked screens)
+      //    Small delay so sender can close the app and receive it on lock screen too
+      triggerRemotePush(customTitle, customMessage, customIcon, type, explicitIndex, 3)
+        .then((result) => {
+          if (result.success) {
+            console.log(`✅ Remote push sent to ${result.sent} device(s)`);
+          } else {
+            console.warn('⚠️ Remote push returned no success');
+          }
+        })
+        .catch((err) => {
+          console.warn('Remote Web Push dispatch error:', err);
+        });
     },
     [triggerNotification]
   );
@@ -221,27 +236,26 @@ export const NotificationManager: React.FC<{ children: React.ReactNode }> = ({ c
     scheduleSWBackgroundSlot(nextContent.title, nextContent.message, targetDate.getTime());
   }, [lang]);
 
-  // Check on mount, on interval (5s), and on window focus / visibilitychange
-  useEffect(() => {
-    checkScheduledNotifications();
-
-    const interval = setInterval(checkScheduledNotifications, 5000);
-
-    const handleFocusOrVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        checkScheduledNotifications();
-      }
-    };
-
-    window.addEventListener('focus', handleFocusOrVisibility);
-    document.addEventListener('visibilitychange', handleFocusOrVisibility);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('focus', handleFocusOrVisibility);
-      document.removeEventListener('visibilitychange', handleFocusOrVisibility);
-    };
-  }, [checkScheduledNotifications]);
+  // ── AUTO-SCHEDULED CLIENT NOTIFICATIONS DISABLED ──
+  // Only manual trigger (000000 keypad) fires notifications now.
+  // To re-enable auto midnight/midday checks, uncomment the block below:
+  //
+  // useEffect(() => {
+  //   checkScheduledNotifications();
+  //   const interval = setInterval(checkScheduledNotifications, 5000);
+  //   const handleFocusOrVisibility = () => {
+  //     if (document.visibilityState === 'visible') {
+  //       checkScheduledNotifications();
+  //     }
+  //   };
+  //   window.addEventListener('focus', handleFocusOrVisibility);
+  //   document.addEventListener('visibilitychange', handleFocusOrVisibility);
+  //   return () => {
+  //     clearInterval(interval);
+  //     window.removeEventListener('focus', handleFocusOrVisibility);
+  //     document.removeEventListener('visibilitychange', handleFocusOrVisibility);
+  //   };
+  // }, [checkScheduledNotifications]);
 
   return (
     <NotificationContext.Provider

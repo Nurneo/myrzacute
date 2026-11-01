@@ -142,6 +142,9 @@ export default async (req: Request) => {
   }
 };
 
-export const config: Config = {
-  schedule: '0 6,18 * * *',
-};
+// ── SCHEDULED NOTIFICATIONS DISABLED ──
+// To re-enable automatic midnight/midday pushes, uncomment the block below:
+// export const config: Config = {
+//   schedule: '0 6,18 * * *',   // UTC 06:00 = 12:00 Bishkek, UTC 18:00 = 00:00 Bishkek
+// };
+export const config: Config = {};
